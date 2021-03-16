@@ -10,9 +10,6 @@ const port = args.length > 0 ? args[0] : "8888";
 const responseFile = args.Length > 1 ? args[1] : defaultResponseLocation;
 const responseContent = parseResponseFile(responseFile, defaultResponseLocation);
 
-console.log(`Listening on port ${port}...`);
-const server = http.createServer(requestListener);
-
 console.log(
     "Listen on specific port and print out incoming HTTP requests to console and return response\n" +
         "\n" +
@@ -23,6 +20,8 @@ console.log(
         '    reseponseFile   File that contains headers and body of response. Default response is "Hello World!!!".\n'
 );
 
+console.log(`Listening on port ${port}...`);
+const server = http.createServer(requestListener);
 server.listen(port);
 
 /**
@@ -31,23 +30,28 @@ server.listen(port);
  * @param {http.OutgoingMessage} response
  */
 function requestListener(request, response) {
-    console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
-    const documentContents = request.body;
-    console.log(`Received ${request.method} request for ${request.url}`);
-    console.log("");
-    for (const header of Object.keys(request.headers)) {
-        console.log(header + ": " + request.headers[header]);
-    }
-    console.log("");
-    console.log(documentContents || "{no body}");
-    console.log("");
+    let requestBody = "";
+    request.on("data", (chunk) => {
+        requestBody += chunk;
+    });
+    request.on("end", () => {
+        console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
+        console.log(`Received ${request.method} request for ${request.url}`);
+        console.log("");
+        for (const header of Object.keys(request.headers)) {
+            console.log(header + ": " + request.headers[header]);
+        }
+        console.log("");
+        console.log(requestBody || "{no body}");
+        console.log("");
 
-    response.setHeader("Server", "HttpMockServer");
-    response.setHeader("Content-Type", "text/plain");
-    for (const header of Object.keys(responseContent.headers)) {
-        response.setHeader(header, responseContent.headers[header]);
-    }
-    response.end(responseContent.body);
+        response.setHeader("Server", "HttpMockServer");
+        response.setHeader("Content-Type", "text/plain");
+        for (const header of Object.keys(responseContent.headers)) {
+            response.setHeader(header, responseContent.headers[header]);
+        }
+        response.end(responseContent.body);
+    });
 }
 
 function parseResponseFile(responseFile, defaultResponseLocation) {
@@ -55,7 +59,6 @@ function parseResponseFile(responseFile, defaultResponseLocation) {
         .toString()
         .split("\n")
         .map((l) => l.trim());
-    console.log(lines);
     const index = lines.indexOf("");
     if (index == -1) {
         console.err(`Response file must contains header, empty line, body. Inspire from file ${defaultResponseLocation}`);

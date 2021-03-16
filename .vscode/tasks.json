@@ -7,6 +7,13 @@
             "problemMatcher": [],
             "label": "npm: start",
             "detail": "node ./index.js"
+        },
+        {
+            "type": "npm",
+            "script": "devel",
+            "problemMatcher": [],
+            "label": "npm: devel",
+            "detail": "nodemon ./index.js 8888"
         }
     ]
 }
