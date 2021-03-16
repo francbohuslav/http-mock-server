@@ -1,0 +1,16 @@
+{
+    "name": "http-mock-server",
+    "version": "1.0.0",
+    "description": "Mock server with multiple response support",
+    "main": "index.js",
+    "scripts": {
+        "start": "nodemon ./index.js 8888 test"
+    },
+    "author": "Bohuslav Franc",
+    "license": "ISC",
+    "dependencies": {},
+    "devDependencies": {
+        "eslint": "^7.15.0",
+        "nodemon": "^2.0.6"
+    }
+}
