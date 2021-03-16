@@ -1,0 +1,3 @@
+﻿Content-Type: text/plain
+
+This is response from file responses/defaultResponse.txt

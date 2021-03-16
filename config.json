@@ -1,0 +1,7 @@
+{
+    "port": 8888,
+    "requests": {
+        "^/test$": "text:This is text response",
+        "": "file:defaultResponse.txt"
+    }
+}
