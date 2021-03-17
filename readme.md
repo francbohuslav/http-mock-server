@@ -1,6 +1,6 @@
 # HTTP mock server
 
-Print out requests in console windows and send specific response.
+Print out requests in console window and send specific response.
 
 Home page: <https://github.com/francbohuslav/http-mock-server>  
 Skype: [cis_franc](skype:cis_franc), E-mail: [bohuslav.franc@unicornuniverse.eu](bohuslav.franc@unicornuniverse.eu)
@@ -27,7 +27,7 @@ Run command `node index`.
 
 ### Options
 
-Look into config.json and I think you will understand :-).
+Look into `config.json` and I think you will understand :-).
 
 ```jsonc
 {
