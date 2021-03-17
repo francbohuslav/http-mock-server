@@ -29,7 +29,7 @@ Run command `node index`.
 
 Look into config.json and I think you will understand :-).
 
-```json
+```jsonc
 {
     // App listen requests on this port
     "port": 8888,
