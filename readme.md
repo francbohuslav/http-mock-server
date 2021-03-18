@@ -15,8 +15,8 @@ Skype: [cis_franc](skype:cis_franc), E-mail: [bohuslav.franc@unicornuniverse.eu]
 
 ## Instalation
 
-1. Clone GIT repository https://github.com/francbohuslav/egw-builder.git.
-2. Install node modules by command `npm i` from folder of builder.
+1. Clone GIT repository https://github.com/francbohuslav/http-mock-server.git.
+2. Install node modules by command `npm i` from folder of http-mock-server.
 
 ---
 
