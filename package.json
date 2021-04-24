@@ -4,8 +4,8 @@
     "description": "Mock server with multiple response support",
     "main": "index.js",
     "scripts": {
-        "start": "node ./index.js 8888",
-        "devel": "nodemon ./index.js 8888"
+        "start": "node ./index.js",
+        "devel": "nodemon ./index.js"
     },
     "author": "Bohuslav Franc",
     "license": "ISC",

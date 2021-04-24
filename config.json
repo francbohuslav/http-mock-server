@@ -1,5 +1,5 @@
 {
-    "port": 8888,
+    "port": 4444,
     "requests": {
         "^/test$": "text:This is text response",
         "": "file:defaultResponse.txt"
