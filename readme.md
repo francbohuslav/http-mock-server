@@ -26,7 +26,10 @@ Update of app can be done by `pull_and_build.bat` file.
 
 ## Usage
 
-Run command `node index`.
+1. Run command `node index`.
+2. Execute requests against localhost:4444 
+3. Get requests history on address http://localhost:4445/
+4. Get last request info on address http://localhost:4445/get-last-request/{your-request-url}
 
 
 ### Options
