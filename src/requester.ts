@@ -4,9 +4,9 @@ import fs from "fs";
 import { IConfig, IResponseConfig } from "./interfaces";
 
 export default class Requester {
-    constructor(private responsesFolder: string) {}
+    constructor(private configPath: string, private responsesFolder: string) {}
 
-    public processResponse(request:IncomingMessage, requestBody:string, response: OutgoingMessage, config:IConfig){
+    public processResponse(request: IncomingMessage, requestBody: string, response: OutgoingMessage) {
         console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
         console.log(`Received ${request.method} request for ${request.url}`);
         console.log("");
@@ -19,14 +19,15 @@ export default class Requester {
 
         response.setHeader("Server", "HttpMockServer");
         response.setHeader("Content-Type", "text/plain");
-        const responseContent = this.getResponse(request, config);
+        const responseContent = this.getResponse(request);
         for (const header of Object.keys(responseContent.headers)) {
             response.setHeader(header, responseContent.headers[header]);
         }
         response.end(responseContent.body);
     }
 
-    private getResponse(request: IncomingMessage, config: IConfig): IResponseConfig {
+    private getResponse(request: IncomingMessage): IResponseConfig {
+        const config: IConfig = JSON.parse(fs.readFileSync(this.configPath, "utf-8"));
         for (const [mask, output] of Object.entries(config.requests)) {
             if (request.url.match(new RegExp(mask))) {
                 if (output.startsWith("text:")) {
@@ -51,7 +52,10 @@ export default class Requester {
     }
 
     private parseResponseFile(responseFile: string, defaultResponseLocation: string): IResponseConfig {
-        const lines = (fs.readFileSync(responseFile).toString() as string).split("\n").map((l) => l.trim());
+        const lines = fs
+            .readFileSync(responseFile, "utf-8")
+            .split("\n")
+            .map((l) => l.trim());
         const index = lines.indexOf("");
         if (index == -1) {
             console.error(`Response file must contains header, empty line, body. Inspire from file ${defaultResponseLocation}`);
