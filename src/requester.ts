@@ -1,17 +1,20 @@
 import { IncomingMessage, OutgoingMessage } from "http";
 import path from "path";
 import fs from "fs";
-import { IConfig, IResponseConfig } from "./interfaces";
+import { IConfig, IRequestConfig, IResponseConfig } from "./interfaces";
+import Memory from "./memory";
 
 export default class Requester {
-    constructor(private configPath: string, private responsesFolder: string) {}
+    constructor(private configPath: string, private responsesFolder: string, private memory: Memory) {}
 
     public processResponse(request: IncomingMessage, requestBody: string, response: OutgoingMessage) {
+        const requestObject: IRequestConfig = { headers: {}, body: requestBody };
         console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
         console.log(`Received ${request.method} request for ${request.url}`);
         console.log("");
         for (const header of Object.keys(request.headers)) {
             console.log(header + ": " + request.headers[header]);
+            requestObject.headers[header] = request.headers[header].toString();
         }
         console.log("");
         console.log(requestBody || "{no body}");
@@ -23,6 +26,7 @@ export default class Requester {
         for (const header of Object.keys(responseContent.headers)) {
             response.setHeader(header, responseContent.headers[header]);
         }
+        this.memory.pushRequest(request.url, requestObject, responseContent);
         response.end(responseContent.body);
     }
 
@@ -45,7 +49,7 @@ export default class Requester {
     private getResponseFromText(text: string): IResponseConfig {
         return {
             headers: {
-                "Content-Type": "plain",
+                "Content-Type": "text/plain",
             },
             body: text,
         };
