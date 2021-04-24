@@ -16,7 +16,11 @@ Skype: [cis_franc](skype:cis_franc), E-mail: [bohuslav.franc@unicornuniverse.eu]
 ## Instalation
 
 1. Clone GIT repository https://github.com/francbohuslav/http-mock-server.git.
-2. Install node modules by command `npm i` from folder of http-mock-server.
+2. Go to directory of http-mock-server.
+3. Install node modules by command `npm i`.
+4. Build app by command `npm run build`.
+
+Update of app can be done by `pull_and_build.bat` file.
 
 ---
 

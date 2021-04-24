@@ -2,16 +2,20 @@
     "name": "http-mock-server",
     "version": "1.0.0",
     "description": "Mock server with multiple response support",
-    "main": "index.js",
+    "main": "dist/index.js",
     "scripts": {
-        "start": "node ./index.js",
-        "devel": "nodemon ./index.js"
+        "start": "node ./dist/index.js",
+        "devel": "nodemon ./dist/index.js",
+        "build": "tsc --project tsconfig.json --extendedDiagnostics",
+        "watch": "tsc --watch --project tsconfig.json"
     },
-    "author": "Bohuslav Franc",
+    "author": "Bogan <franc.bohuslav@gmail.com>",
     "license": "ISC",
     "dependencies": {},
     "devDependencies": {
+        "@types/node": "^14.14.41",
         "eslint": "^7.15.0",
-        "nodemon": "^2.0.6"
+        "nodemon": "^2.0.6",
+        "typescript": "^4.2.4"
     }
 }
