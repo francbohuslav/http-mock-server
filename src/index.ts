@@ -31,7 +31,10 @@ function apiRequestListener(request: IncomingMessage, response: OutgoingMessage)
         let output = null;
         if (request.url.startsWith("/get-last-request/")) {
             output = memory.getLastRequest(request.url.substr(17));
-        } else {
+        } else if (request.url.startsWith("/clear-history/")) {
+           memory.clear();
+           output = "Memory cleared";
+        } else { 
             output = memory.getAllRequests();
         }
         response.setHeader("Server", "HttpMockServer");
