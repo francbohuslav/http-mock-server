@@ -1,11 +1,14 @@
 import fs from "fs";
 import http, { IncomingMessage, OutgoingMessage } from "http";
-import path from "path";
 import { IConfig, IHttpListenerConfig, IRequestConfig, IResponseConfig } from "../interfaces";
 import Memory from "../memory";
+import { Responses } from "../responses";
+import { Listener } from "./listener";
 
-export class HttpListener {
-    constructor(private config: IHttpListenerConfig, private configPath: string, private responsesDirectory: string, private memory: Memory) {}
+export class HttpListener extends Listener {
+    constructor(private config: IHttpListenerConfig, private configPath: string, private memory: Memory, private responses: Responses) {
+        super();
+    }
 
     public listen(): HttpListener {
         console.log(`HTTP listener on port ${this.config.port}...`);
@@ -24,11 +27,7 @@ export class HttpListener {
         const requestObject: IRequestConfig = { time: new Date().toISOString(), headers: {}, body: requestBody };
         console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
         console.log(`Received ${request.method} request for ${request.url}`);
-        console.log("");
-        for (const header of Object.keys(request.headers)) {
-            console.log(header + ": " + request.headers[header]);
-            requestObject.headers[header] = request.headers[header].toString();
-        }
+        requestObject.headers = this.printHeaders(request.headers);
         console.log("");
         console.log(requestBody || "{no body}");
         console.log("");
@@ -52,7 +51,7 @@ export class HttpListener {
                     return this.getResponseFromText(output.substr(5));
                 }
                 if (output.startsWith("file:")) {
-                    return this.parseResponseFile(path.join(this.responsesDirectory, output.substr(5)), this.responsesDirectory);
+                    return this.responses.parseResponseFile(output.substr(5));
                 }
                 return { time: new Date().toISOString(), error: `Unknown request value in config for mask ${mask}` };
             }
@@ -61,34 +60,8 @@ export class HttpListener {
     }
 
     private getResponseFromText(text: string): IResponseConfig {
-        return {
-            time: new Date().toISOString(),
-            headers: {
-                "Content-Type": "text/plain",
-            },
-            body: text,
-        };
-    }
-
-    private parseResponseFile(responseFile: string, defaultResponseLocation: string): IResponseConfig {
-        const lines = fs
-            .readFileSync(responseFile, "utf-8")
-            .split("\n")
-            .map((l) => l.trim());
-        const index = lines.indexOf("");
-        if (index == -1) {
-            console.error(`Response file must contains header, empty line, body. Inspire from file ${defaultResponseLocation}`);
-            process.exit(1);
-        }
-        const headers: { [name: string]: string } = {};
-        for (let i = 0; i < index; i++) {
-            const match = lines[i].match(/^(.*):(.*)$/);
-            if (!match) {
-                console.error(`Line ${lines[i]} is not valid header`);
-            } else {
-                headers[match[1].trim()] = match[2].trim();
-            }
-        }
-        return { time: new Date().toISOString(), headers, body: lines.slice(index + 1).join("\n") };
+        const res = { ...this.responses.getResponseFromText(text) };
+        res.headers["Content-Type"] = "text/plain";
+        return res;
     }
 }

@@ -47,24 +47,24 @@
     "definitions": {
         "kafkahost": {
             "type": "object",
-            "required": ["host", "queues"],
+            "required": ["host", "topics"],
             "additionalProperties": false,
             "properties": {
                 "host": {
                     "type": "string",
                     "description": "Kafka server address, e.g.: localhost:9092"
                 },
-                "queues": {
+                "topics": {
                     "type": "object",
                     "patternProperties": {
                         ".*": {
-                            "$ref": "#/definitions/kafkaqueue"
+                            "$ref": "#/definitions/kafkatopic"
                         }
                     }
                 }
             }
         },
-        "kafkaqueue": {
+        "kafkatopic": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
@@ -79,6 +79,10 @@
                 "response": {
                     "type": "string",
                     "description": "text:text response\nfile:response.txt"
+                },
+                "targetTopic": {
+                    "type": "string",
+                    "description": "Name of topic"
                 }
             }
         }

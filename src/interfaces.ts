@@ -13,13 +13,14 @@ export interface IHttpListenerConfig {
 
 export interface IKafkaListenerConfig {
     host: string;
-    queues: { [key: string]: IKafkaQueueConfig };
+    topics: { [key: string]: IKafkaTopicConfig };
 }
 
-export interface IKafkaQueueConfig {
+export interface IKafkaTopicConfig {
     response: string;
     delay: number;
     sendResponse: boolean;
+    targetTopic: string;
 }
 
 export interface IRequestConfig {

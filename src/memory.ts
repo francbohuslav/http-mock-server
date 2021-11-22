@@ -3,16 +3,18 @@ import { IRequestConfig, IResponseConfig } from "./interfaces";
 export default class Memory {
     private memory: { [key: string]: IMemoryData[] } = {};
 
-    public pushRequest(type: "kafka" | "http", endpoint: string, request: IRequestConfig, response: IResponseConfig): void {
+    public pushRequest(type: "kafka" | "http", endpoint: string, request: IRequestConfig, response: IResponseConfig): IMemoryData {
         if (!this.memory[endpoint]) {
             this.memory[endpoint] = [];
         }
-        this.memory[endpoint].push({
+        const memoryData: IMemoryData = {
             type,
             endpoint,
             request,
             response,
-        });
+        };
+        this.memory[endpoint].push(memoryData);
+        return memoryData;
     }
 
     public getLastRequest(requestUrl: string): IMemoryData {
@@ -28,7 +30,7 @@ export default class Memory {
     }
 }
 
-interface IMemoryData {
+export interface IMemoryData {
     type: "kafka" | "http";
     endpoint: string;
     request: IRequestConfig;

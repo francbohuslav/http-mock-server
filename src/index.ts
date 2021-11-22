@@ -1,10 +1,11 @@
+import http from "http";
 import { IncomingMessage, OutgoingMessage } from "node:http";
 import path from "path";
-import http from "http";
-import Memory from "./memory";
 import { IConfig } from "./interfaces";
 import { HttpListener } from "./listeners/http";
 import { KafkaListener } from "./listeners/kafka";
+import Memory from "./memory";
+import { Responses } from "./responses";
 
 const configPath = path.join(__dirname, "..", "config.json");
 const config: IConfig = require(configPath);
@@ -15,13 +16,14 @@ console.log(`API is listening on port ${config.apiPort}...`);
 const serverApi = http.createServer(apiRequestListener);
 serverApi.listen(config.apiPort);
 
+const responses = new Responses(responsesDirectory);
 if (config.listeners.http) {
-    new HttpListener(config.listeners.http, configPath, responsesDirectory, memory).listen();
+    new HttpListener(config.listeners.http, configPath, memory, responses).listen();
 }
 
 if (config.listeners.kafka) {
     for (const kafkaConfig of config.listeners.kafka) {
-        new KafkaListener(kafkaConfig, configPath, responsesDirectory, memory).listen();
+        new KafkaListener(kafkaConfig, memory, responses).listen();
     }
 }
 

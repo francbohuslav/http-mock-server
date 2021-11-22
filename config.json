@@ -12,11 +12,12 @@
         "kafka": [
             {
                 "host": "localhost:9092",
-                "queues": {
+                "topics": {
                     "dfg_test_incoming_message_for_processing": {
-                        "sendResponse": false,
+                        "sendResponse": true,
                         "delay": 3000,
-                        "response": "text:This is text response"
+                        "response": "file:kafkaResponse.txt",
+                        "targetTopic": "my_topic"
                     }
                 }
             }
