@@ -1,10 +1,10 @@
 {
     "name": "http-mock-server",
-    "version": "1.0.1",
-    "description": "Mock server with multiple response support",
+    "version": "1.0.2",
+    "description": "Mock server for HTTP and Kafka",
     "main": "dist/index.js",
     "scripts": {
-        "start": "nodemon ./dist/index.js",
+        "start": "node ./dist/index.js",
         "devel": "nodemon ./dist/index.js",
         "build": "tsc --project tsconfig.json --extendedDiagnostics",
         "watch": "tsc --watch --project tsconfig.json"

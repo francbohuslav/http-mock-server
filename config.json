@@ -13,11 +13,11 @@
             {
                 "host": "localhost:9092",
                 "topics": {
-                    "dfg_test_incoming_message_for_processing": {
+                    "incoming_kafka_topic": {
                         "sendResponse": true,
                         "delay": 3000,
                         "response": "file:kafkaResponse.txt",
-                        "targetTopic": "my_topic"
+                        "targetTopic": "outgoing_kafka_topic"
                     }
                 }
             }

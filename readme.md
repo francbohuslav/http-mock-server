@@ -27,32 +27,10 @@ Update of app can be done by `pull_and_build.bat` file.
 ## Usage
 
 1. Run command `node index`.
-2. Execute requests against localhost:4444 
+2. Execute requests against localhost:4444
 3. Get requests history on address http://localhost:4445/
 4. Get last request info on address http://localhost:4445/get-last-request/{your-request-url}
-
 
 ### Options
 
 Look into `config.json` and I think you will understand :-).
-
-```jsonc
-{
-    // App listen requests on this port
-    "port": 8888,
-
-    // Request => response mapping
-    "requests": {
-
-        // Regular expresion for request URI: response type
-        // First match wins.
-        // E.g. request to /tests will generate simple text response "This is text response"
-        "^/test$": "text:This is text response",
-
-        // All unhandled requests are processed here. 
-        // E.g. response is taken from file responses/defaultResponse.txt
-        // Files supports custom response headers
-        "": "file:defaultResponse.txt"
-    }
-}
-```
