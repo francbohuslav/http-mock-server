@@ -23,6 +23,7 @@ export interface IKafkaQueueConfig {
 }
 
 export interface IRequestConfig {
+    time: string;
     headers?: { [name: string]: string };
     body?: string;
 }

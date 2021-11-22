@@ -14,5 +14,9 @@
             "dist": true
         },
         "git.enabled": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        },
+        "editor.formatOnSave": true
     }
 }

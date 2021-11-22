@@ -21,7 +21,7 @@ if (config.listeners.http) {
 
 if (config.listeners.kafka) {
     for (const kafkaConfig of config.listeners.kafka) {
-        new KafkaListener(kafkaConfig).listen();
+        new KafkaListener(kafkaConfig, configPath, responsesDirectory, memory).listen();
     }
 }
 

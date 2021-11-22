@@ -1,14 +1,11 @@
-import http, { IncomingMessage, OutgoingMessage } from "http";
+import { Kafka, KafkaMessage, PartitionAssigners } from "kafkajs";
+import { IKafkaListenerConfig, IRequestConfig } from "../interfaces";
 import Memory from "../memory";
-import { IConfig, IHttpListenerConfig, IKafkaListenerConfig, IRequestConfig, IResponseConfig } from "../interfaces";
-import fs from "fs";
-import path from "path";
-import { Kafka, PartitionAssigners } from "kafkajs";
 
 export class KafkaListener {
-    constructor(private config: IKafkaListenerConfig, configPath: string, responsesDirectory: string, memory: Memory) {}
+    constructor(private config: IKafkaListenerConfig, configPath: string, responsesDirectory: string, private memory: Memory) {}
 
-    public listen(): KafkaListener {
+    public async listen(): Promise<KafkaListener> {
         console.log(`Kafka listener on ${this.config.host}...`);
 
         const kafka = new Kafka({
@@ -19,22 +16,33 @@ export class KafkaListener {
             groupId: "group_id.mockserver" + new Date().getTime(),
             partitionAssigners: [PartitionAssigners.roundRobin],
         });
-        (async () => {
-            await consumer.connect();
-            Object.entries(this.config.queues).forEach(async ([queue, queueConfig]) => {
-                await consumer.subscribe({ topic: queue, fromBeginning: true }); //TODO: BF: vypnout true
 
-                await consumer.run({
-                    eachMessage: async ({ topic, partition, message }) => {
-                        console.log({
-                            topic,
-                            partition,
-                            value: message.value.toString(),
-                        });
-                    },
-                });
+        await consumer.connect();
+        Object.entries(this.config.queues).forEach(async ([queue, queueConfig]) => {
+            await consumer.subscribe({ topic: queue, fromBeginning: true }); //TODO: BF: vypnout true
+
+            await consumer.run({
+                eachMessage: async ({ topic, message }) => {
+                    this.processRequest(topic, message);
+                },
             });
-        })();
+        });
         return this;
+    }
+
+    private processRequest(queue: string, request: KafkaMessage) {
+        const requestBody = request.value.toString();
+        const requestObject: IRequestConfig = { time: new Date().toISOString(), headers: {}, body: request.value.toString() };
+        console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
+        console.log(`Received Kafka request in ${queue} queue`);
+        console.log("");
+        for (const header of Object.keys(request.headers)) {
+            console.log(header + ": " + request.headers[header]);
+            requestObject.headers[header] = request.headers[header].toString();
+        }
+        console.log("");
+        console.log(requestBody || "{no body}");
+        console.log("");
+        this.memory.pushRequest("kafka", queue, requestObject, null);
     }
 }

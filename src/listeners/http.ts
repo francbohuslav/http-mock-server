@@ -1,15 +1,11 @@
-import http, { IncomingMessage, OutgoingMessage } from "http";
-import Memory from "../memory";
-import { IConfig, IHttpListenerConfig, IRequestConfig, IResponseConfig } from "../interfaces";
 import fs from "fs";
+import http, { IncomingMessage, OutgoingMessage } from "http";
 import path from "path";
+import { IConfig, IHttpListenerConfig, IRequestConfig, IResponseConfig } from "../interfaces";
+import Memory from "../memory";
 
 export class HttpListener {
-    private requester: Requester;
-
-    constructor(private config: IHttpListenerConfig, configPath: string, responsesDirectory: string, memory: Memory) {
-        this.requester = new Requester(configPath, responsesDirectory, memory);
-    }
+    constructor(private config: IHttpListenerConfig, private configPath: string, private responsesDirectory: string, private memory: Memory) {}
 
     public listen(): HttpListener {
         console.log(`HTTP listener on port ${this.config.port}...`);
@@ -21,15 +17,11 @@ export class HttpListener {
     private requestListener(request: IncomingMessage, response: OutgoingMessage) {
         let requestBody = "";
         request.on("data", (chunk) => (requestBody += chunk));
-        request.on("end", () => this.requester.processResponse(request, requestBody, response));
+        request.on("end", () => this.processRequest(request, requestBody, response));
     }
-}
 
-export default class Requester {
-    constructor(private configPath: string, private responsesFolder: string, private memory: Memory) {}
-
-    public processResponse(request: IncomingMessage, requestBody: string, response: OutgoingMessage) {
-        const requestObject: IRequestConfig = { headers: {}, body: requestBody };
+    private processRequest(request: IncomingMessage, requestBody: string, response: OutgoingMessage) {
+        const requestObject: IRequestConfig = { time: new Date().toISOString(), headers: {}, body: requestBody };
         console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
         console.log(`Received ${request.method} request for ${request.url}`);
         console.log("");
@@ -47,7 +39,7 @@ export default class Requester {
         for (const header of Object.keys(responseContent.headers)) {
             response.setHeader(header, responseContent.headers[header]);
         }
-        this.memory.pushRequest(request.url, requestObject, responseContent);
+        this.memory.pushRequest("http", request.url, requestObject, responseContent);
         response.end(responseContent.body);
     }
 
@@ -60,9 +52,9 @@ export default class Requester {
                     return this.getResponseFromText(output.substr(5));
                 }
                 if (output.startsWith("file:")) {
-                    return this.parseResponseFile(path.join(this.responsesFolder, output.substr(5)), this.responsesFolder);
+                    return this.parseResponseFile(path.join(this.responsesDirectory, output.substr(5)), this.responsesDirectory);
                 }
-                return { error: `Unknown request value in config for mask ${mask}` };
+                return { time: new Date().toISOString(), error: `Unknown request value in config for mask ${mask}` };
             }
         }
         return this.getResponseFromText("Unknown request");
@@ -70,6 +62,7 @@ export default class Requester {
 
     private getResponseFromText(text: string): IResponseConfig {
         return {
+            time: new Date().toISOString(),
             headers: {
                 "Content-Type": "text/plain",
             },
@@ -96,6 +89,6 @@ export default class Requester {
                 headers[match[1].trim()] = match[2].trim();
             }
         }
-        return { headers, body: lines.slice(index + 1).join("\n") };
+        return { time: new Date().toISOString(), headers, body: lines.slice(index + 1).join("\n") };
     }
 }
