@@ -1,7 +1,25 @@
 export interface IConfig {
-    port:string,
-    apiPort:string,
+    apiPort: string;
+    listeners: {
+        http: IHttpListenerConfig;
+        kafka: IKafkaListenerConfig[];
+    };
+}
+
+export interface IHttpListenerConfig {
+    port: string;
     requests: { [key: string]: string };
+}
+
+export interface IKafkaListenerConfig {
+    host: string;
+    queues: { [key: string]: IKafkaQueueConfig };
+}
+
+export interface IKafkaQueueConfig {
+    response: string;
+    delay: number;
+    sendResponse: boolean;
 }
 
 export interface IRequestConfig {

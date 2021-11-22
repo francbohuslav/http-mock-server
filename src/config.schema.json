@@ -1,0 +1,86 @@
+{
+    "$id": "http-mock-server/config.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ConfigFile",
+    "type": "object",
+    "required": ["apiPort", "listeners"],
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "apiPort": {
+            "minimum": 1,
+            "maximum": 65534,
+            "type": "integer",
+            "description": "Port for HTTP API"
+        },
+        "listeners": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "http": {
+                    "type": "object",
+                    "required": ["port", "requests"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "port": {
+                            "minimum": 1,
+                            "maximum": 65534,
+                            "type": "integer",
+                            "description": "Port for HTTP listener"
+                        },
+                        "requests": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "kafka": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kafkahost"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "kafkahost": {
+            "type": "object",
+            "required": ["host", "queues"],
+            "additionalProperties": false,
+            "properties": {
+                "host": {
+                    "type": "string",
+                    "description": "Kafka server address, e.g.: localhost:9092"
+                },
+                "queues": {
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": {
+                            "$ref": "#/definitions/kafkaqueue"
+                        }
+                    }
+                }
+            }
+        },
+        "kafkaqueue": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "sendResponse": {
+                    "type": "boolean",
+                    "description": "Whether send response"
+                },
+                "delay": {
+                    "type": "integer",
+                    "description": "Delay between request and response"
+                },
+                "response": {
+                    "type": "string",
+                    "description": "text:text response\nfile:response.txt"
+                }
+            }
+        }
+    }
+}

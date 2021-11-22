@@ -1,27 +1,28 @@
 import { IncomingMessage, OutgoingMessage } from "node:http";
 import path from "path";
 import http from "http";
-import Requester from "./requester";
 import Memory from "./memory";
 import { IConfig } from "./interfaces";
+import { HttpListener } from "./listeners/http";
+import { KafkaListener } from "./listeners/kafka";
 
 const configPath = path.join(__dirname, "..", "config.json");
-const configForListen: IConfig = require(configPath);
+const config: IConfig = require(configPath);
 const memory = new Memory();
-const requester = new Requester(configPath, path.join(__dirname, "..", "responses"), memory);
+const responsesDirectory = path.join(__dirname, "..", "responses");
 
-console.log(`Listening on port ${configForListen.port}...`);
-const server = http.createServer(requestListener);
-server.listen(configForListen.port);
-
-console.log(`API is listening on port ${configForListen.apiPort}...`);
+console.log(`API is listening on port ${config.apiPort}...`);
 const serverApi = http.createServer(apiRequestListener);
-serverApi.listen(configForListen.apiPort);
+serverApi.listen(config.apiPort);
 
-function requestListener(request: IncomingMessage, response: OutgoingMessage) {
-    let requestBody = "";
-    request.on("data", (chunk) => (requestBody += chunk));
-    request.on("end", () => requester.processResponse(request, requestBody, response));
+if (config.listeners.http) {
+    new HttpListener(config.listeners.http, configPath, responsesDirectory, memory).listen();
+}
+
+if (config.listeners.kafka) {
+    for (const kafkaConfig of config.listeners.kafka) {
+        new KafkaListener(kafkaConfig).listen();
+    }
 }
 
 function apiRequestListener(request: IncomingMessage, response: OutgoingMessage) {
@@ -32,9 +33,9 @@ function apiRequestListener(request: IncomingMessage, response: OutgoingMessage)
         if (request.url.startsWith("/get-last-request/")) {
             output = memory.getLastRequest(request.url.substr(17));
         } else if (request.url.startsWith("/clear-history/")) {
-           memory.clear();
-           output = "Memory cleared";
-        } else { 
+            memory.clear();
+            output = "Memory cleared";
+        } else {
             output = memory.getAllRequests();
         }
         response.setHeader("Server", "HttpMockServer");

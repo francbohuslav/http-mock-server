@@ -4,14 +4,16 @@
     "description": "Mock server with multiple response support",
     "main": "dist/index.js",
     "scripts": {
-        "start": "node ./dist/index.js",
+        "start": "nodemon ./dist/index.js",
         "devel": "nodemon ./dist/index.js",
         "build": "tsc --project tsconfig.json --extendedDiagnostics",
         "watch": "tsc --watch --project tsconfig.json"
     },
     "author": "Bogan <franc.bohuslav@gmail.com>",
     "license": "ISC",
-    "dependencies": {},
+    "dependencies": {
+        "kafkajs": "^1.15.0"
+    },
     "devDependencies": {
         "@types/node": "^14.14.41",
         "eslint": "^7.15.0",

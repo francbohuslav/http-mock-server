@@ -13,6 +13,6 @@
             "**/.DS_Store": true,
             "dist": true
         },
-        "git.enabled": true
+        "git.enabled": true,
     }
 }

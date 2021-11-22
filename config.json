@@ -1,8 +1,25 @@
 {
-    "port": 4444,
+    "$schema": "./src/config.schema.json",
     "apiPort": 4445,
-    "requests": {
-        "^/test$": "text:This is text response",
-        "": "file:defaultResponse.txt"
+    "listeners": {
+        "http": {
+            "port": 4444,
+            "requests": {
+                "^/test$": "text:This is text response",
+                "": "file:defaultResponse.txt"
+            }
+        },
+        "kafka": [
+            {
+                "host": "localhost:9092",
+                "queues": {
+                    "dfg_test_incoming_message_for_processing": {
+                        "sendResponse": false,
+                        "delay": 3000,
+                        "response": "text:This is text response"
+                    }
+                }
+            }
+        ]
     }
 }
