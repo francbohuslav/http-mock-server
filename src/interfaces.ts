@@ -21,6 +21,7 @@ export interface IKafkaTopicConfig {
     delay: number;
     sendResponse: boolean;
     targetTopic: string;
+    responseProcessor: string;
 }
 
 export interface IRequestConfig {

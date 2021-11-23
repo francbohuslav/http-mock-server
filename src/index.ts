@@ -8,9 +8,12 @@ import Memory from "./memory";
 import { Responses } from "./responses";
 
 const configPath = path.join(__dirname, "..", "config.json");
-const config: IConfig = require(configPath);
-const memory = new Memory();
 const responsesDirectory = path.join(__dirname, "..", "responses");
+
+const config: IConfig = require(configPath);
+const responseProcessors = require(path.join(responsesDirectory, "processors.js"));
+
+const memory = new Memory();
 
 console.log(`API is listening on port ${config.apiPort}...`);
 const serverApi = http.createServer(apiRequestListener);
@@ -18,12 +21,12 @@ serverApi.listen(config.apiPort);
 
 const responses = new Responses(responsesDirectory);
 if (config.listeners.http) {
-    new HttpListener(config.listeners.http, configPath, memory, responses).listen();
+    new HttpListener(config.listeners.http, configPath, memory, responses, responseProcessors).listen();
 }
 
 if (config.listeners.kafka) {
     for (const kafkaConfig of config.listeners.kafka) {
-        new KafkaListener(kafkaConfig, memory, responses).listen();
+        new KafkaListener(kafkaConfig, memory, responses, responseProcessors).listen();
     }
 }
 

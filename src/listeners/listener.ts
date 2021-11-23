@@ -1,4 +1,8 @@
+import { IRequestConfig, IResponseConfig } from "../interfaces";
+
 export abstract class Listener {
+    constructor(protected responseProcessors: any) {}
+
     public printHeaders(headers: RawHeaders): StringHeaders {
         const res: StringHeaders = {};
         if (Object.keys(headers).length) {
@@ -9,6 +13,16 @@ export abstract class Listener {
             }
         }
         return res;
+    }
+
+    protected runResponseProcessor(responseProcessor: string, requestConfig: IRequestConfig, responseConfig: IResponseConfig) {
+        if (!responseProcessor) {
+            throw new Error("PesponseProcessor is empty");
+        }
+        if (!this.responseProcessors[responseProcessor]) {
+            throw new Error(`PesponseProcessor ${responseProcessor} is not in object in file processors.js.`);
+        }
+        return this.responseProcessors[responseProcessor](requestConfig, responseConfig);
     }
 }
 

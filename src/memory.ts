@@ -17,8 +17,8 @@ export default class Memory {
         return memoryData;
     }
 
-    public getLastRequest(requestUrl: string): IMemoryData {
-        return this.memory[requestUrl] && this.memory[requestUrl][this.memory[requestUrl].length - 1];
+    public getLastRequest(endpoint: string): IMemoryData {
+        return this.memory[endpoint] && this.memory[endpoint][this.memory[endpoint].length - 1];
     }
 
     public getAllRequests() {

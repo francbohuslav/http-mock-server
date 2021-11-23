@@ -17,6 +17,7 @@
                         "sendResponse": true,
                         "delay": 3000,
                         "response": "file:kafkaResponse.txt",
+                        "responseProcessor": "sampleKafkaProcessor",
                         "targetTopic": "outgoing_kafka_topic"
                     }
                 }

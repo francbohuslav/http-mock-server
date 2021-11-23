@@ -6,8 +6,14 @@ import { Responses } from "../responses";
 import { Listener } from "./listener";
 
 export class HttpListener extends Listener {
-    constructor(private config: IHttpListenerConfig, private configPath: string, private memory: Memory, private responses: Responses) {
-        super();
+    constructor(
+        private config: IHttpListenerConfig,
+        private configPath: string,
+        private memory: Memory,
+        private responses: Responses,
+        responseProcessors: any
+    ) {
+        super(responseProcessors);
     }
 
     public listen(): HttpListener {

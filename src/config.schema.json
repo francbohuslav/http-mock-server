@@ -83,6 +83,10 @@
                 "targetTopic": {
                     "type": "string",
                     "description": "Name of topic"
+                },
+                "responseProcessor": {
+                    "type": "string",
+                    "description": "Function name of processor that transforms response. See file responses/processors.js"
                 }
             }
         }
