@@ -28,7 +28,7 @@ export class KafkaListener extends Listener {
         await this.producer.connect();
         await this.consumer.connect();
         Object.entries(this.config.topics).forEach(async ([topic, topicConfig]) => {
-            await this.consumer.subscribe({ topic: topic, fromBeginning: true }); //TODO: BF: vypnout true
+            await this.consumer.subscribe({ topic: topic, fromBeginning: false });
 
             await this.consumer.run({
                 eachMessage: async ({ topic, message }) => {
