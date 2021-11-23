@@ -26,7 +26,7 @@ export interface IKafkaTopicConfig {
 
 export interface IRequestConfig {
     time: string;
-    headers?: { [name: string]: string };
+    headers?: { [name: string]: any };
     body?: string;
 }
 

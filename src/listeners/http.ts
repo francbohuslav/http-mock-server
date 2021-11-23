@@ -33,7 +33,8 @@ export class HttpListener extends Listener {
         const requestObject: IRequestConfig = { time: new Date().toISOString(), headers: {}, body: requestBody };
         console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
         console.log(`Received ${request.method} request for ${request.url}`);
-        requestObject.headers = this.printHeaders(request.headers);
+        requestObject.headers = request.headers;
+        this.printHeaders(request.headers);
         console.log("");
         console.log(requestBody || "{no body}");
         console.log("");
