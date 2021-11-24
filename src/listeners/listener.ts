@@ -1,7 +1,10 @@
-import { IRequestConfig, IResponseConfig } from "../interfaces";
+import { IKafkaResponseDefConfig, IResponseContent } from "../interfaces";
+import { Responses } from "../responses";
 
 export abstract class Listener {
-    constructor(protected responseProcessors: any) {}
+    constructor(protected responses: Responses) {}
+
+    public abstract sendResponse(responseConfigDef: IKafkaResponseDefConfig, responseContent: IResponseContent): Promise<void>;
 
     public printHeaders(headers: RawHeaders): void {
         if (Object.keys(headers).length) {
@@ -10,16 +13,6 @@ export abstract class Listener {
                 console.log(header + ": " + headers[header]);
             }
         }
-    }
-
-    protected runResponseProcessor(responseProcessor: string, requestConfig: IRequestConfig, responseConfig: IResponseConfig) {
-        if (!responseProcessor) {
-            throw new Error("PesponseProcessor is empty");
-        }
-        if (!this.responseProcessors[responseProcessor]) {
-            throw new Error(`PesponseProcessor ${responseProcessor} is not in object in file processors.js.`);
-        }
-        return this.responseProcessors[responseProcessor](requestConfig, responseConfig);
     }
 }
 

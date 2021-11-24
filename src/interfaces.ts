@@ -2,34 +2,44 @@ export interface IConfig {
     apiPort: string;
     listeners: {
         http: IHttpListenerConfig;
-        kafka: IKafkaListenerConfig[];
+        kafka: { [name: string]: IKafkaListenerConfig };
     };
 }
 
 export interface IHttpListenerConfig {
     port: string;
-    requests: { [key: string]: string };
+    requests: { [key: string]: IRequestDefType };
 }
+
+export type IRequestDefType = IResponseContentDef | IRequestDefConfig;
 
 export interface IKafkaListenerConfig {
     host: string;
-    topics: { [key: string]: IKafkaTopicConfig };
+    requests: { [topic: string]: IRequestDefConfig };
+    responses: { [name: string]: IKafkaResponseDefConfig };
 }
 
-export interface IKafkaTopicConfig {
+export interface IRequestDefConfig {
     response: string;
     delay: number;
     sendResponse: boolean;
+}
+
+export interface IKafkaResponseDefConfig {
+    content: IResponseContentDef;
     targetTopic: string;
     responseProcessor: string;
 }
 
-export interface IRequestConfig {
+export interface IRequestContent {
     time: string;
     headers?: { [name: string]: any };
     body?: string;
 }
 
-export interface IResponseConfig extends IRequestConfig {
+export interface IResponseContent extends IRequestContent {
     error?: string;
 }
+
+export type IResponseContentDef = string;
+export type IListenerType = "kafka" | "http";

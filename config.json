@@ -6,22 +6,36 @@
             "port": 4444,
             "requests": {
                 "^/test$": "text:This is text response",
+                "^/with-response$": {
+                    "sendResponse": true,
+                    "delay": 3000,
+                    "response": "kafka1:sampleResponse1"
+                },
                 "": "file:defaultResponse.txt"
             }
         },
-        "kafka": [
-            {
+        "kafka": {
+            "kafka1": {
                 "host": "localhost:9092",
-                "topics": {
+                "requests": {
                     "incoming_kafka_topic": {
                         "sendResponse": true,
                         "delay": 3000,
-                        "response": "file:kafkaResponse.txt",
+                        "response": "sampleResponse2"
+                    }
+                },
+                "responses": {
+                    "sampleResponse1": {
+                        "content": "file:kafkaResponse.txt",
                         "responseProcessor": "sampleKafkaProcessor",
+                        "targetTopic": "incoming_kafka_topic"
+                    },
+                    "sampleResponse2": {
+                        "content": "file:kafkaResponse.txt",
                         "targetTopic": "outgoing_kafka_topic"
                     }
                 }
             }
-        ]
+        }
     }
 }

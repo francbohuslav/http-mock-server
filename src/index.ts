@@ -19,14 +19,17 @@ console.log(`API is listening on port ${config.apiPort}...`);
 const serverApi = http.createServer(apiRequestListener);
 serverApi.listen(config.apiPort);
 
-const responses = new Responses(responsesDirectory);
+const responses = new Responses(responsesDirectory, configPath, responseProcessors);
 if (config.listeners.http) {
-    new HttpListener(config.listeners.http, configPath, memory, responses, responseProcessors).listen();
+    new HttpListener(config.listeners.http, configPath, memory, responses).listen();
 }
 
 if (config.listeners.kafka) {
-    for (const kafkaConfig of config.listeners.kafka) {
-        new KafkaListener(kafkaConfig, memory, responses, responseProcessors).listen();
+    for (const name of Object.keys(config.listeners.kafka)) {
+        const kafkaConfig = config.listeners.kafka[name];
+        const listener = new KafkaListener(name, kafkaConfig, memory, responses);
+        responses.registerListener(name, listener);
+        listener.listen();
     }
 }
 

@@ -1,19 +1,22 @@
 import fs from "fs";
 import http, { IncomingMessage, OutgoingMessage } from "http";
-import { IConfig, IHttpListenerConfig, IRequestConfig, IResponseConfig } from "../interfaces";
+import { delay } from "../core";
+import {
+    IConfig,
+    IHttpListenerConfig,
+    IKafkaResponseDefConfig,
+    IRequestContent,
+    IRequestDefConfig,
+    IResponseContent,
+    IResponseContentDef,
+} from "../interfaces";
 import Memory from "../memory";
 import { Responses } from "../responses";
 import { Listener } from "./listener";
 
 export class HttpListener extends Listener {
-    constructor(
-        private config: IHttpListenerConfig,
-        private configPath: string,
-        private memory: Memory,
-        private responses: Responses,
-        responseProcessors: any
-    ) {
-        super(responseProcessors);
+    constructor(private config: IHttpListenerConfig, private configPath: string, private memory: Memory, responses: Responses) {
+        super(responses);
     }
 
     public listen(): HttpListener {
@@ -26,11 +29,11 @@ export class HttpListener extends Listener {
     private requestListener(request: IncomingMessage, response: OutgoingMessage) {
         let requestBody = "";
         request.on("data", (chunk) => (requestBody += chunk));
-        request.on("end", () => this.processRequest(request, requestBody, response));
+        request.on("end", async () => this.processRequest(request, requestBody, response));
     }
 
-    private processRequest(request: IncomingMessage, requestBody: string, response: OutgoingMessage) {
-        const requestObject: IRequestConfig = { time: new Date().toISOString(), headers: {}, body: requestBody };
+    private async processRequest(request: IncomingMessage, requestBody: string, response: OutgoingMessage): Promise<void> {
+        const requestObject: IRequestContent = { time: new Date().toISOString(), headers: {}, body: requestBody };
         console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
         console.log(`Received ${request.method} request for ${request.url}`);
         requestObject.headers = request.headers;
@@ -41,34 +44,53 @@ export class HttpListener extends Listener {
 
         response.setHeader("Server", "HttpMockServer");
         response.setHeader("Content-Type", "text/plain");
-        const responseContent = this.getResponse(request);
+        const requestDefConfig = this.getRequestDefConfig(request);
+
+        let responseContent: IResponseContent;
+        if (this.responses.isExternalResponse(requestDefConfig)) {
+            responseContent = this.getResponseContentFromText(`Response will be sent by ${requestDefConfig.response}`);
+        } else {
+            responseContent = this.getResponseContent(requestDefConfig.response);
+            if (requestDefConfig.delay) {
+                await delay(requestDefConfig.delay);
+            }
+        }
+
         for (const header of Object.keys(responseContent.headers)) {
             response.setHeader(header, responseContent.headers[header]);
         }
-        this.memory.pushRequest("http", request.url, requestObject, responseContent);
+        const memoryData = this.memory.pushRequest("http", request.url, requestObject, responseContent);
         response.end(responseContent.body);
+        if (this.responses.isExternalResponse(requestDefConfig)) {
+            this.responses.sendResponse("http", requestDefConfig, memoryData);
+        }
     }
 
-    private getResponse(request: IncomingMessage): IResponseConfig {
+    private getRequestDefConfig(request: IncomingMessage): IRequestDefConfig {
         const config: IConfig = JSON.parse(fs.readFileSync(this.configPath, "utf-8"));
         const httpConfig = config.listeners.http;
         for (const [mask, output] of Object.entries(httpConfig.requests)) {
             if (request.url.match(new RegExp(mask))) {
-                if (output.startsWith("text:")) {
-                    return this.getResponseFromText(output.substr(5));
-                }
-                if (output.startsWith("file:")) {
-                    return this.responses.parseResponseFile(output.substr(5));
-                }
-                return { time: new Date().toISOString(), error: `Unknown request value in config for mask ${mask}` };
+                return this.responses.getRequestDefConfig(output);
             }
         }
-        return this.getResponseFromText("Unknown request");
+        throw new Error("Unknown request");
     }
 
-    private getResponseFromText(text: string): IResponseConfig {
+    private getResponseContent(responseDef: IResponseContentDef): IResponseContent {
+        if (responseDef.startsWith("text:")) {
+            return this.getResponseContentFromText(responseDef.substr(5));
+        }
+        return this.responses.getResponseContent(responseDef);
+    }
+
+    private getResponseContentFromText(text: string): IResponseContent {
         const res = { ...this.responses.getResponseFromText(text) };
         res.headers["Content-Type"] = "text/plain";
         return res;
+    }
+
+    public sendResponse(responseConfigDef: IKafkaResponseDefConfig, responseContent: IResponseContent): Promise<void> {
+        throw new Error("Method not implemented.");
     }
 }

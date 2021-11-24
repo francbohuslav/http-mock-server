@@ -36,9 +36,11 @@
                     }
                 },
                 "kafka": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/kafkahost"
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": {
+                            "$ref": "#/definitions/kafkahost"
+                        }
                     }
                 }
             }
@@ -47,18 +49,26 @@
     "definitions": {
         "kafkahost": {
             "type": "object",
-            "required": ["host", "topics"],
+            "required": ["host"],
             "additionalProperties": false,
             "properties": {
                 "host": {
                     "type": "string",
                     "description": "Kafka server address, e.g.: localhost:9092"
                 },
-                "topics": {
+                "requests": {
                     "type": "object",
                     "patternProperties": {
                         ".*": {
                             "$ref": "#/definitions/kafkatopic"
+                        }
+                    }
+                },
+                "responses": {
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": {
+                            "$ref": "#/definitions/kafkaresponse"
                         }
                     }
                 }
@@ -77,6 +87,16 @@
                     "description": "Delay between request and response"
                 },
                 "response": {
+                    "type": "string",
+                    "description": "name of response, e.g. sampleResponse or kafka1:sampleResponse"
+                }
+            }
+        },
+        "kafkaresponse": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "content": {
                     "type": "string",
                     "description": "text:text response\nfile:response.txt"
                 },

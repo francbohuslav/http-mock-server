@@ -1,9 +1,9 @@
-import { IRequestConfig, IResponseConfig } from "./interfaces";
+import { IListenerType, IRequestContent, IResponseContent } from "./interfaces";
 
 export default class Memory {
     private memory: { [key: string]: IMemoryData[] } = {};
 
-    public pushRequest(type: "kafka" | "http", endpoint: string, request: IRequestConfig, response: IResponseConfig): IMemoryData {
+    public pushRequest(type: IListenerType, endpoint: string, request: IRequestContent, response: IResponseContent): IMemoryData {
         if (!this.memory[endpoint]) {
             this.memory[endpoint] = [];
         }
@@ -31,8 +31,8 @@ export default class Memory {
 }
 
 export interface IMemoryData {
-    type: "kafka" | "http";
+    type: IListenerType;
     endpoint: string;
-    request: IRequestConfig;
-    response: IResponseConfig;
+    request: IRequestContent;
+    response: IResponseContent;
 }
