@@ -61,7 +61,8 @@ export class Responses {
         const targetName = requestDefConfig.response.includes(":") ? match[1] : sourceName;
         const responseName = requestDefConfig.response.includes(":") ? match[2] : requestDefConfig.response;
         const config: IConfig = JSON.parse(fs.readFileSync(this.configPath, "utf-8"));
-        const responseConfigDef = config.listeners.kafka[targetName].responses[responseName];
+        const mbListenConfig = config.listeners.kafka[targetName] || config.listeners.amqp[targetName];
+        const responseConfigDef = mbListenConfig.responses[responseName];
 
         const responseContent = this.getResponseContent(responseConfigDef.content);
         if (responseConfigDef && responseConfigDef.responseProcessor) {

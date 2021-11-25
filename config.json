@@ -28,11 +28,26 @@
                     "sampleResponse1": {
                         "content": "file:kafkaResponse.txt",
                         "responseProcessor": "sampleKafkaProcessor",
-                        "targetTopic": "incoming_kafka_topic"
-                    },
-                    "sampleResponse2": {
-                        "content": "file:kafkaResponse.txt",
                         "targetTopic": "outgoing_kafka_topic"
+                    }
+                }
+            }
+        },
+        "amqp": {
+            "amqp1": {
+                "host": "amqp://guest:guest@localhost:5672/dfg?adminPort=15672",
+                "requests": {
+                    "incoming_amqp_topic": {
+                        "sendResponse": true,
+                        "delay": 3000,
+                        "response": "sampleResponse1"
+                    }
+                },
+                "responses": {
+                    "sampleResponse1": {
+                        "content": "file:kafkaResponse.txt",
+                        "responseProcessor": "sampleKafkaProcessor",
+                        "targetTopic": "outgoing_amqp_topic"
                     }
                 }
             }

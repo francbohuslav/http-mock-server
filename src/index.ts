@@ -2,6 +2,7 @@ import http from "http";
 import { IncomingMessage, OutgoingMessage } from "node:http";
 import path from "path";
 import { IConfig } from "./interfaces";
+import { AmqpListener } from "./listeners/amqp";
 import { HttpListener } from "./listeners/http";
 import { KafkaListener } from "./listeners/kafka";
 import Memory from "./memory";
@@ -28,6 +29,15 @@ if (config.listeners.kafka) {
     for (const name of Object.keys(config.listeners.kafka)) {
         const kafkaConfig = config.listeners.kafka[name];
         const listener = new KafkaListener(name, kafkaConfig, memory, responses);
+        responses.registerListener(name, listener);
+        listener.listen();
+    }
+}
+
+if (config.listeners.amqp) {
+    for (const name of Object.keys(config.listeners.amqp)) {
+        const amqpConfig = config.listeners.amqp[name];
+        const listener = new AmqpListener(name, amqpConfig, memory, responses);
         responses.registerListener(name, listener);
         listener.listen();
     }

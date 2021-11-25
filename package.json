@@ -12,9 +12,11 @@
     "author": "Bogan <franc.bohuslav@gmail.com>",
     "license": "ISC",
     "dependencies": {
+        "amqplib": "^0.8.0",
         "kafkajs": "^1.15.0"
     },
     "devDependencies": {
+        "@types/amqplib": "^0.8.2",
         "@types/node": "^14.14.41",
         "eslint": "^7.15.0",
         "nodemon": "^2.0.6",

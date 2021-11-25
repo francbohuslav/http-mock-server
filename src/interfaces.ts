@@ -2,7 +2,8 @@ export interface IConfig {
     apiPort: string;
     listeners: {
         http: IHttpListenerConfig;
-        kafka: { [name: string]: IKafkaListenerConfig };
+        kafka: { [name: string]: IMessageBrokerListenerConfig };
+        amqp: { [name: string]: IMessageBrokerListenerConfig };
     };
 }
 
@@ -13,10 +14,10 @@ export interface IHttpListenerConfig {
 
 export type IRequestDefType = IResponseContentDef | IRequestDefConfig;
 
-export interface IKafkaListenerConfig {
+export interface IMessageBrokerListenerConfig {
     host: string;
     requests: { [topic: string]: IRequestDefConfig };
-    responses: { [name: string]: IKafkaResponseDefConfig };
+    responses: { [name: string]: IMessageBrokerResponseDefConfig };
 }
 
 export interface IRequestDefConfig {
@@ -25,7 +26,7 @@ export interface IRequestDefConfig {
     sendResponse: boolean;
 }
 
-export interface IKafkaResponseDefConfig {
+export interface IMessageBrokerResponseDefConfig {
     content: IResponseContentDef;
     targetTopic: string;
     responseProcessor: string;
@@ -42,4 +43,4 @@ export interface IResponseContent extends IRequestContent {
 }
 
 export type IResponseContentDef = string;
-export type IListenerType = "kafka" | "http";
+export type IListenerType = "kafka" | "http" | "amqp";

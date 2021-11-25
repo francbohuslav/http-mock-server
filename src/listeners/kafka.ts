@@ -1,15 +1,15 @@
 import { Consumer, Kafka, KafkaMessage, PartitionAssigners, Producer } from "kafkajs";
-import { IKafkaListenerConfig, IKafkaResponseDefConfig, IRequestContent, IRequestDefConfig, IResponseContent } from "../interfaces";
+import { IMessageBrokerListenerConfig, IMessageBrokerResponseDefConfig, IRequestContent, IRequestDefConfig, IResponseContent } from "../interfaces";
 import Memory from "../memory";
 import { Responses } from "../responses";
-import { Listener } from "./listener";
+import { MessageBrokerListener } from "./message-broker-listener";
 
-export class KafkaListener extends Listener {
+export class KafkaListener extends MessageBrokerListener {
     private consumer: Consumer;
     private producer: Producer;
 
-    constructor(private name: string, private config: IKafkaListenerConfig, private memory: Memory, responses: Responses) {
-        super(responses);
+    constructor(name: string, private config: IMessageBrokerListenerConfig, memory: Memory, responses: Responses) {
+        super(responses, memory, "kafka", name);
     }
 
     public async listen(): Promise<KafkaListener> {
@@ -40,44 +40,20 @@ export class KafkaListener extends Listener {
             },
         });
 
-        /*setTimeout(() => {
-            console.log("posima");
-            this.producer.send({
-                topic: "incoming_kafka_topic",
-                messages: [{ value: "test" }],
-            });
-            this.producer.send({
-                topic: "incoming_kafka_topic2",
-                messages: [{ value: "test2" }],
-            });
-        }, 2000);
-*/
         return this;
     }
 
     private async processRequest(topic: string, request: KafkaMessage, requestDefConfig: IRequestDefConfig): Promise<void> {
-        const requestBody = request.value.toString();
-        const requestObject: IRequestContent = { time: new Date().toISOString(), headers: {}, body: request.value.toString() };
-        console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
-        console.log(`Received Kafka request in ${topic} topic`);
-        requestObject.headers = request.headers;
-        this.printHeaders(request.headers);
-        console.log("");
-        console.log(requestBody || "{no body}");
-        console.log("");
-        const memoryData = this.memory.pushRequest("kafka", "/" + topic, requestObject, null);
-        if (requestDefConfig.sendResponse) {
-            await this.responses.sendResponse(this.name, requestDefConfig, memoryData);
-        }
+        const requestObject: IRequestContent = {
+            time: new Date().toISOString(),
+            headers: request.headers,
+            body: request.value.toString(),
+        };
+        this.processMessageBrokerRequest(topic, requestObject, requestDefConfig);
     }
 
-    public async sendResponse(responseConfig: IKafkaResponseDefConfig, responseContent: IResponseContent): Promise<void> {
-        console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
-        console.log(`Sending Kafka response to topic ${responseConfig.targetTopic}`);
-        this.printHeaders(responseContent.headers);
-        console.log("");
-        console.log(responseContent.body || "{no body}");
-        console.log("");
+    public async sendResponse(responseConfig: IMessageBrokerResponseDefConfig, responseContent: IResponseContent): Promise<void> {
+        await this.printSendResponse(responseConfig, responseContent);
         await this.producer.send({
             topic: responseConfig.targetTopic,
             messages: [{ headers: responseContent.headers, value: responseContent.body }],

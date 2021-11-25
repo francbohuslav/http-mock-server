@@ -1,10 +1,10 @@
-import { IKafkaResponseDefConfig, IResponseContent } from "../interfaces";
+import { IMessageBrokerResponseDefConfig, IResponseContent } from "../interfaces";
 import { Responses } from "../responses";
 
 export abstract class Listener {
     constructor(protected responses: Responses) {}
 
-    public abstract sendResponse(responseConfigDef: IKafkaResponseDefConfig, responseContent: IResponseContent): Promise<void>;
+    public abstract sendResponse(responseConfigDef: IMessageBrokerResponseDefConfig, responseContent: IResponseContent): Promise<void>;
 
     public printHeaders(headers: RawHeaders): void {
         if (Object.keys(headers).length) {

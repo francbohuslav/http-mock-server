@@ -39,7 +39,15 @@
                     "type": "object",
                     "patternProperties": {
                         ".*": {
-                            "$ref": "#/definitions/kafkahost"
+                            "$ref": "#/definitions/mbhost"
+                        }
+                    }
+                },
+                "amqp": {
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": {
+                            "$ref": "#/definitions/mbhost"
                         }
                     }
                 }
@@ -47,20 +55,20 @@
         }
     },
     "definitions": {
-        "kafkahost": {
+        "mbhost": {
             "type": "object",
             "required": ["host"],
             "additionalProperties": false,
             "properties": {
                 "host": {
                     "type": "string",
-                    "description": "Kafka server address, e.g.: localhost:9092"
+                    "description": "MB server address, e.g.: localhost:9092 or amqp://localhost"
                 },
                 "requests": {
                     "type": "object",
                     "patternProperties": {
                         ".*": {
-                            "$ref": "#/definitions/kafkatopic"
+                            "$ref": "#/definitions/mbtopic"
                         }
                     }
                 },
@@ -74,7 +82,7 @@
                 }
             }
         },
-        "kafkatopic": {
+        "mbtopic": {
             "type": "object",
             "additionalProperties": false,
             "properties": {

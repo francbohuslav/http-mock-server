@@ -4,7 +4,7 @@ import { delay } from "../core";
 import {
     IConfig,
     IHttpListenerConfig,
-    IKafkaResponseDefConfig,
+    IMessageBrokerResponseDefConfig,
     IRequestContent,
     IRequestDefConfig,
     IResponseContent,
@@ -90,7 +90,7 @@ export class HttpListener extends Listener {
         return res;
     }
 
-    public sendResponse(responseConfigDef: IKafkaResponseDefConfig, responseContent: IResponseContent): Promise<void> {
+    public sendResponse(responseConfigDef: IMessageBrokerResponseDefConfig, responseContent: IResponseContent): Promise<void> {
         throw new Error("Method not implemented.");
     }
 }
