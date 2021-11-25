@@ -1,6 +1,7 @@
 import http from "http";
 import { IncomingMessage, OutgoingMessage } from "node:http";
 import path from "path";
+import { exit } from "process";
 import { IConfig } from "./interfaces";
 import { AmqpListener } from "./listeners/amqp";
 import { HttpListener } from "./listeners/http";
@@ -30,7 +31,10 @@ if (config.listeners.kafka) {
         const kafkaConfig = config.listeners.kafka[name];
         const listener = new KafkaListener(name, kafkaConfig, memory, responses);
         responses.registerListener(name, listener);
-        listener.listen();
+        listener.listen().catch((err) => {
+            console.error(err);
+            exit(1);
+        });
     }
 }
 
@@ -39,7 +43,10 @@ if (config.listeners.amqp) {
         const amqpConfig = config.listeners.amqp[name];
         const listener = new AmqpListener(name, amqpConfig, memory, responses);
         responses.registerListener(name, listener);
-        listener.listen();
+        listener.listen().catch((err) => {
+            console.error(err);
+            exit(1);
+        });
     }
 }
 
