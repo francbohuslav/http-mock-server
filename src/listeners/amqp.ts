@@ -11,8 +11,8 @@ export class AmqpListener extends MessageBrokerListener {
 
     private assertedChannels: Set<string> = new Set<string>();
 
-    constructor(name: string, private config: IMessageBrokerListenerConfig, memory: Memory, responses: Responses) {
-        super(responses, memory, "amqp", name);
+    constructor(name: string, config: IMessageBrokerListenerConfig, memory: Memory, responses: Responses) {
+        super(responses, memory, "amqp", name, config);
     }
 
     public async listen(): Promise<AmqpListener> {
@@ -48,9 +48,8 @@ export class AmqpListener extends MessageBrokerListener {
         if (this.assertedChannels.has(topic)) {
             return;
         }
-        this.channel.assertQueue(topic, {
-            durable: true,
-        });
+        let settings = this.getQueueSettins(topic);
+        this.channel.assertQueue(topic, settings);
         this.assertedChannels.add(topic);
     }
 

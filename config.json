@@ -49,6 +49,15 @@
                         "responseProcessor": "sampleKafkaProcessor",
                         "targetTopic": "outgoing_amqp_topic"
                     }
+                },
+                "queueSettings": {
+                    ".*": {
+                        "durable": true,
+                        "arguments": {
+                            "x-overflow": "reject-publish",
+                            "x-queue-mode": "lazy"
+                        }
+                    }
                 }
             }
         }

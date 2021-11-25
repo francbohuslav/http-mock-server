@@ -1,10 +1,23 @@
-import { IListenerType, IMessageBrokerResponseDefConfig, IRequestContent, IRequestDefConfig, IResponseContent } from "../interfaces";
+import {
+    IListenerType,
+    IMessageBrokerListenerConfig,
+    IMessageBrokerResponseDefConfig,
+    IRequestContent,
+    IRequestDefConfig,
+    IResponseContent,
+} from "../interfaces";
 import Memory from "../memory";
 import { Responses } from "../responses";
 import { Listener } from "./listener";
 
 export abstract class MessageBrokerListener extends Listener {
-    constructor(protected responses: Responses, protected memory: Memory, protected listenerType: IListenerType, protected listenerName: string) {
+    constructor(
+        protected responses: Responses,
+        protected memory: Memory,
+        protected listenerType: IListenerType,
+        protected listenerName: string,
+        protected config: IMessageBrokerListenerConfig
+    ) {
         super(responses);
     }
 
@@ -28,5 +41,15 @@ export abstract class MessageBrokerListener extends Listener {
         console.log("");
         console.log(responseContent.body || "{no body}");
         console.log("");
+    }
+
+    protected getQueueSettins(topic: string) {
+        let settings = {};
+        for (const [mask, sets] of Object.entries(this.config.queueSettings)) {
+            if (topic.match(new RegExp(mask))) {
+                settings = sets;
+            }
+        }
+        return settings;
     }
 }

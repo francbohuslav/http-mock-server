@@ -79,6 +79,14 @@
                             "$ref": "#/definitions/kafkaresponse"
                         }
                     }
+                },
+                "queueSettings": {
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": {
+                            "type": "object"
+                        }
+                    }
                 }
             }
         },

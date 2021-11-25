@@ -8,8 +8,8 @@ export class KafkaListener extends MessageBrokerListener {
     private consumer: Consumer;
     private producer: Producer;
 
-    constructor(name: string, private config: IMessageBrokerListenerConfig, memory: Memory, responses: Responses) {
-        super(responses, memory, "kafka", name);
+    constructor(name: string, config: IMessageBrokerListenerConfig, memory: Memory, responses: Responses) {
+        super(responses, memory, "kafka", name, config);
     }
 
     public async listen(): Promise<KafkaListener> {

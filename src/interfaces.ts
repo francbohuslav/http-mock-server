@@ -18,6 +18,7 @@ export interface IMessageBrokerListenerConfig {
     host: string;
     requests: { [topic: string]: IRequestDefConfig };
     responses: { [name: string]: IMessageBrokerResponseDefConfig };
+    queueSettings: { [name: string]: any };
 }
 
 export interface IRequestDefConfig {
