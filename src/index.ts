@@ -2,6 +2,7 @@ import http from "http";
 import { IncomingMessage, OutgoingMessage } from "node:http";
 import path from "path";
 import { exit } from "process";
+import { Configer } from "./configer";
 import { IConfig } from "./interfaces";
 import { AmqpListener } from "./listeners/amqp";
 import { HttpListener } from "./listeners/http";
@@ -9,10 +10,10 @@ import { KafkaListener } from "./listeners/kafka";
 import Memory from "./memory";
 import { Responses } from "./responses";
 
-const configPath = path.join(__dirname, "..", "config.json");
 const responsesDirectory = path.join(__dirname, "..", "responses");
 
-const config: IConfig = require(configPath);
+const configer = new Configer(path.join(__dirname, "..", "config.jsonc"));
+const config: IConfig = configer.loadConfig();
 const responseProcessors = require(path.join(responsesDirectory, "processors.js"));
 
 const memory = new Memory();
@@ -21,9 +22,9 @@ console.log(`API is listening on port ${config.apiPort}...`);
 const serverApi = http.createServer(apiRequestListener);
 serverApi.listen(config.apiPort);
 
-const responses = new Responses(responsesDirectory, configPath, responseProcessors);
+const responses = new Responses(responsesDirectory, configer, responseProcessors);
 if (config.listeners.http) {
-    new HttpListener(config.listeners.http, configPath, memory, responses).listen();
+    new HttpListener(config.listeners.http, configer, memory, responses).listen();
 }
 
 if (config.listeners.kafka) {
