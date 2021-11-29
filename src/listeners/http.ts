@@ -1,21 +1,13 @@
-import fs from "fs";
 import http, { IncomingMessage, OutgoingMessage } from "http";
+import { Configer } from "../configer";
 import { delay } from "../core";
-import {
-    IConfig,
-    IHttpListenerConfig,
-    IMessageBrokerResponseDefConfig,
-    IRequestContent,
-    IRequestDefConfig,
-    IResponseContent,
-    IResponseContentDef,
-} from "../interfaces";
+import { IHttpListenerConfig, IMessageBrokerResponseDefConfig, IRequestContent, IRequestDefConfig, IResponseContent, IResponseContentDef } from "../interfaces";
 import Memory from "../memory";
 import { Responses } from "../responses";
 import { Listener } from "./listener";
 
 export class HttpListener extends Listener {
-    constructor(private config: IHttpListenerConfig, private configPath: string, private memory: Memory, responses: Responses) {
+    constructor(private config: IHttpListenerConfig, private configer: Configer, private memory: Memory, responses: Responses) {
         super(responses);
     }
 
@@ -67,7 +59,7 @@ export class HttpListener extends Listener {
     }
 
     private getRequestDefConfig(request: IncomingMessage): IRequestDefConfig {
-        const config: IConfig = JSON.parse(fs.readFileSync(this.configPath, "utf-8"));
+        const config = this.configer.loadConfig();
         const httpConfig = config.listeners.http;
         for (const [mask, output] of Object.entries(httpConfig.requests)) {
             if (request.url.match(new RegExp(mask))) {

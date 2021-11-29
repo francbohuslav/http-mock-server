@@ -1,6 +1,6 @@
 {
     "name": "http-mock-server",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "Mock server for HTTP and Kafka",
     "main": "dist/index.js",
     "scripts": {
@@ -13,6 +13,7 @@
     "license": "ISC",
     "dependencies": {
         "amqplib": "^0.8.0",
+        "jsonc": "^2.0.0",
         "kafkajs": "^1.15.0"
     },
     "devDependencies": {

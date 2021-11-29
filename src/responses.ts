@@ -1,14 +1,15 @@
 import fs from "fs";
 import { join } from "path";
+import { Configer } from "./configer";
 import { delay } from "./core";
-import { IConfig, IRequestContent, IRequestDefConfig, IRequestDefType, IResponseContent, IResponseContentDef } from "./interfaces";
+import { IRequestContent, IRequestDefConfig, IRequestDefType, IResponseContent, IResponseContentDef } from "./interfaces";
 import { Listener } from "./listeners/listener";
 import { IMemoryData } from "./memory";
 
 export class Responses {
     private listeners: { [key: string]: Listener } = {};
 
-    constructor(private defaultResponseLocation: string, private configPath: string, protected responseProcessors: any) {}
+    constructor(private defaultResponseLocation: string, private configer: Configer, protected responseProcessors: any) {}
 
     public registerListener(name: string, listener: Listener) {
         if (this.listeners[name]) {
@@ -60,7 +61,7 @@ export class Responses {
         const match = requestDefConfig.response.match(/^(.*?):(.*?)$/);
         const targetName = requestDefConfig.response.includes(":") ? match[1] : sourceName;
         const responseName = requestDefConfig.response.includes(":") ? match[2] : requestDefConfig.response;
-        const config: IConfig = JSON.parse(fs.readFileSync(this.configPath, "utf-8"));
+        const config = this.configer.loadConfig();
         const mbListenConfig = (config.listeners.kafka && config.listeners.kafka[targetName]) || (config.listeners.amqp && config.listeners.amqp[targetName]);
         const responseConfigDef = mbListenConfig.responses[responseName];
 

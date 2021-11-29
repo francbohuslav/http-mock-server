@@ -33,4 +33,4 @@ Update of app can be done by `pull_and_build.bat` file.
 
 ### Options
 
-Look into `config.json` and I think you will understand :-).
+Look into `config.jsonc` and I think you will understand :-).
