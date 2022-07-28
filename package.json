@@ -12,7 +12,7 @@
     "author": "Bogan <franc.bohuslav@gmail.com>",
     "license": "ISC",
     "dependencies": {
-        "amqplib": "^0.8.0",
+        "amqplib": "^0.10.1",
         "jsonc": "^2.0.0",
         "kafkajs": "^1.15.0"
     },

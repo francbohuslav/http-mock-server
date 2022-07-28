@@ -18,7 +18,23 @@ export class AmqpListener extends MessageBrokerListener {
     public async listen(): Promise<AmqpListener> {
         console.log(`AMQP listener on ${this.config.host}...`);
 
-        this.connection = await promisify<string, Connection>(amqp.connect)(this.config.host);
+        const socketOptions = {};
+        /*
+        Example for SSL
+
+        "host": "amqps://guest:guest@localhost:5671/dfg?adminPort=15672", // in config.jsonc
+
+        const socketOptions = {
+            cert: fs.readFileSync("C:\\{path}\\certificates\\client1\\client1.cer"),
+            key: fs.readFileSync("C:\\{path}\\certificates\\client1\\client1.key"),
+            passphrase: "",
+            ca: [fs.readFileSync("C:\\{path}\\certificates\\ca\\ca.crt")],
+            rejectUnauthorized: false, // For self signed certificate
+        };
+        */
+
+        const connectAsync = promisify<string, any, Connection>(amqp.connect);
+        this.connection = await connectAsync(this.config.host, socketOptions);
 
         this.channel = await promisify(this.connection.createChannel.bind(this.connection))();
         for (const topic of Object.keys(this.config.requests)) {
