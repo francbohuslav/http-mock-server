@@ -1,130 +1,152 @@
 {
-    "$id": "http-mock-server/config.schema.json",
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "ConfigFile",
-    "type": "object",
-    "required": ["apiPort", "listeners"],
-    "additionalProperties": false,
-    "properties": {
-        "$schema": {
-            "type": "string"
-        },
-        "apiPort": {
-            "minimum": 1,
-            "maximum": 65534,
-            "type": "integer",
-            "description": "Port for HTTP API"
-        },
-        "listeners": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "http": {
-                    "type": "object",
-                    "required": ["port", "requests"],
-                    "additionalProperties": false,
-                    "properties": {
-                        "port": {
-                            "minimum": 1,
-                            "maximum": 65534,
-                            "type": "integer",
-                            "description": "Port for HTTP listener"
-                        },
-                        "requests": {
-                            "type": "object"
-                        }
-                    }
-                },
-                "kafka": {
-                    "type": "object",
-                    "patternProperties": {
-                        ".*": {
-                            "$ref": "#/definitions/mbhost"
-                        }
-                    }
-                },
-                "amqp": {
-                    "type": "object",
-                    "patternProperties": {
-                        ".*": {
-                            "$ref": "#/definitions/mbhost"
-                        }
-                    }
-                }
-            }
-        }
+  "$id": "http-mock-server/config.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ConfigFile",
+  "type": "object",
+  "required": ["apiPort", "listeners"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
     },
-    "definitions": {
-        "mbhost": {
-            "type": "object",
-            "required": ["host"],
-            "additionalProperties": false,
-            "properties": {
-                "host": {
-                    "type": "string",
-                    "description": "MB server address, e.g.: localhost:9092 or amqp://localhost"
-                },
-                "requests": {
-                    "type": "object",
-                    "patternProperties": {
-                        ".*": {
-                            "$ref": "#/definitions/mbtopic"
-                        }
-                    }
-                },
-                "responses": {
-                    "type": "object",
-                    "patternProperties": {
-                        ".*": {
-                            "$ref": "#/definitions/kafkaresponse"
-                        }
-                    }
-                },
-                "queueSettings": {
-                    "type": "object",
-                    "patternProperties": {
-                        ".*": {
-                            "type": "object"
-                        }
-                    }
+    "apiPort": {
+      "minimum": 1,
+      "maximum": 65534,
+      "type": "integer",
+      "description": "Port for HTTP API"
+    },
+    "listeners": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "http": {
+          "type": "object",
+          "required": ["port", "requests"],
+          "additionalProperties": false,
+          "properties": {
+            "port": {
+              "minimum": 1,
+              "maximum": 65534,
+              "type": "integer",
+              "description": "Port for HTTP listener"
+            },
+            "requests": {
+              "type": "object"
+            },
+            "responses": {
+              "type": "object",
+              "patternProperties": {
+                ".*": {
+                  "$ref": "#/definitions/httpresponse"
                 }
+              }
             }
+          }
         },
-        "mbtopic": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "sendResponse": {
-                    "type": "boolean",
-                    "description": "Whether send response"
-                },
-                "delay": {
-                    "type": "integer",
-                    "description": "Delay between request and response"
-                },
-                "response": {
-                    "type": "string",
-                    "description": "name of response, e.g. sampleResponse or kafka1:sampleResponse"
-                }
+        "kafka": {
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "$ref": "#/definitions/mbhost"
             }
+          }
         },
-        "kafkaresponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "content": {
-                    "type": "string",
-                    "description": "text:text response\nfile:response.txt"
-                },
-                "targetTopic": {
-                    "type": "string",
-                    "description": "Name of topic"
-                },
-                "responseProcessor": {
-                    "type": "string",
-                    "description": "Function name of processor that transforms response. See file responses/processors.js"
-                }
+        "amqp": {
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "$ref": "#/definitions/mbhost"
             }
+          }
         }
+      }
     }
+  },
+  "definitions": {
+    "mbhost": {
+      "type": "object",
+      "required": ["host"],
+      "additionalProperties": false,
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "MB server address, e.g.: localhost:9092 or amqp://localhost"
+        },
+        "requests": {
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "$ref": "#/definitions/mbtopic"
+            }
+          }
+        },
+        "responses": {
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "$ref": "#/definitions/kafkaresponse"
+            }
+          }
+        },
+        "queueSettings": {
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "mbtopic": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sendResponse": {
+          "type": "boolean",
+          "description": "Whether send response"
+        },
+        "delay": {
+          "type": "integer",
+          "description": "Delay between request and response"
+        },
+        "response": {
+          "type": "string",
+          "description": "name of response, e.g. sampleResponse or kafka1:sampleResponse"
+        }
+      }
+    },
+    "kafkaresponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "text:text response\nfile:response.txt"
+        },
+        "targetTopic": {
+          "type": "string",
+          "description": "Name of topic"
+        },
+        "responseProcessor": {
+          "type": "string",
+          "description": "Function name of processor that transforms response. See file responses/processors.js"
+        }
+      }
+    },
+    "httpresponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "text:text response\nfile:response.txt"
+        },
+        "responseProcessor": {
+          "type": "string",
+          "description": "Function name of processor that transforms response. See file responses/processors.js"
+        }
+      }
+    }
+  }
 }

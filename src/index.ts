@@ -24,48 +24,48 @@ serverApi.listen(config.apiPort);
 
 const responses = new Responses(responsesDirectory, configer, responseProcessors);
 if (config.listeners.http) {
-    new HttpListener(config.listeners.http, configer, memory, responses).listen();
+  new HttpListener(config.listeners.http, configer, memory, responses, console).listen();
 }
 
 if (config.listeners.kafka) {
-    for (const name of Object.keys(config.listeners.kafka)) {
-        const kafkaConfig = config.listeners.kafka[name];
-        const listener = new KafkaListener(name, kafkaConfig, memory, responses);
-        responses.registerListener(name, listener);
-        listener.listen().catch((err) => {
-            console.error(err);
-            exit(1);
-        });
-    }
+  for (const name of Object.keys(config.listeners.kafka)) {
+    const kafkaConfig = config.listeners.kafka[name];
+    const listener = new KafkaListener(name, kafkaConfig, memory, responses);
+    responses.registerListener(name, listener);
+    listener.listen().catch((err) => {
+      console.error(err);
+      exit(1);
+    });
+  }
 }
 
 if (config.listeners.amqp) {
-    for (const name of Object.keys(config.listeners.amqp)) {
-        const amqpConfig = config.listeners.amqp[name];
-        const listener = new AmqpListener(name, amqpConfig, memory, responses);
-        responses.registerListener(name, listener);
-        listener.listen().catch((err) => {
-            console.error(err);
-            exit(1);
-        });
-    }
+  for (const name of Object.keys(config.listeners.amqp)) {
+    const amqpConfig = config.listeners.amqp[name];
+    const listener = new AmqpListener(name, amqpConfig, memory, responses);
+    responses.registerListener(name, listener);
+    listener.listen().catch((err) => {
+      console.error(err);
+      exit(1);
+    });
+  }
 }
 
 function apiRequestListener(request: IncomingMessage, response: OutgoingMessage) {
-    let requestBody = "";
-    request.on("data", (chunk) => (requestBody += chunk));
-    request.on("end", () => {
-        let output = null;
-        if (request.url.startsWith("/get-last-request/")) {
-            output = memory.getLastRequest(request.url.substr(17));
-        } else if (request.url.startsWith("/clear-history/")) {
-            memory.clear();
-            output = "Memory cleared";
-        } else {
-            output = memory.getAllRequests();
-        }
-        response.setHeader("Server", "HttpMockServer");
-        response.setHeader("Content-Type", "application/json");
-        response.end(JSON.stringify(output, null, 2));
-    });
+  let requestBody = "";
+  request.on("data", (chunk) => (requestBody += chunk));
+  request.on("end", () => {
+    let output = null;
+    if (request.url.startsWith("/get-last-request/")) {
+      output = memory.getLastRequest(request.url.substr(17));
+    } else if (request.url.startsWith("/clear-history/")) {
+      memory.clear();
+      output = "Memory cleared";
+    } else {
+      output = memory.getAllRequests();
+    }
+    response.setHeader("Server", "HttpMockServer");
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify(output, null, 2));
+  });
 }

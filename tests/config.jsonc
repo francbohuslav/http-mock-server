@@ -1,0 +1,24 @@
+{
+  "$schema": "../src/config.schema.json",
+  "apiPort": 4445,
+  "listeners": {
+    "http": {
+      "port": 4444,
+      "requests": {
+        "^/test$": "file:httpResponse.json",
+        "^/withProcessor$": {
+          "sendResponse": true,
+          "delay": 10,
+          "response": "withProcessor"
+        },
+        "": "text:unknown request"
+      },
+      "responses": {
+        "withProcessor": {
+          "content": "file:httpResponse.json",
+          "responseProcessor": "upperCase"
+        }
+      }
+    }
+  }
+}

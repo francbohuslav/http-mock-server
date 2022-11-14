@@ -1,18 +1,28 @@
 import http, { IncomingMessage, OutgoingMessage } from "http";
 import { Configer } from "../configer";
 import { delay } from "../core";
-import { IHttpListenerConfig, IMessageBrokerResponseDefConfig, IRequestContent, IRequestDefConfig, IResponseContent, IResponseContentDef } from "../interfaces";
+import {
+  IConsole,
+  IHttpListenerConfig,
+  IIncomingMessage,
+  IMessageBrokerResponseDefConfig,
+  IOutgoingMessage,
+  IRequestContent,
+  IRequestDefConfig,
+  IResponseContent,
+  IResponseContentDef,
+} from "../interfaces";
 import Memory from "../memory";
 import { Responses } from "../responses";
 import { Listener } from "./listener";
 
 export class HttpListener extends Listener {
-  constructor(private config: IHttpListenerConfig, private configer: Configer, private memory: Memory, responses: Responses) {
+  constructor(private config: IHttpListenerConfig, private configer: Configer, private memory: Memory, responses: Responses, private console: IConsole) {
     super(responses);
   }
 
   public listen(): HttpListener {
-    console.log(`HTTP listener on port ${this.config.port}...`);
+    this.console.log(`HTTP listener on port ${this.config.port}...`);
     const server = http.createServer(this.requestListener.bind(this));
     server.listen(this.config.port);
     return this;
@@ -24,15 +34,15 @@ export class HttpListener extends Listener {
     request.on("end", async () => this.processRequest(request, requestBody, response));
   }
 
-  private async processRequest(request: IncomingMessage, requestBody: string, response: OutgoingMessage): Promise<void> {
+  protected async processRequest(request: IIncomingMessage, requestBody: string, response: IOutgoingMessage): Promise<void> {
     const requestObject: IRequestContent = { time: new Date().toISOString(), headers: {}, body: requestBody };
-    console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
-    console.log(`Received ${request.method} request for ${request.url}`);
+    this.console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
+    this.console.log(`Received ${request.method} request for ${request.url}`);
     requestObject.headers = request.headers;
     this.printHeaders(request.headers);
-    console.log("");
-    console.log(requestBody || "{no body}");
-    console.log("");
+    this.console.log("");
+    this.console.log(requestBody || "{no body}");
+    this.console.log("");
 
     response.setHeader("Server", "HttpMockServer");
     response.setHeader("Content-Type", "text/plain");
@@ -42,7 +52,15 @@ export class HttpListener extends Listener {
     if (this.responses.isExternalResponse(requestDefConfig)) {
       responseContent = this.getResponseContentFromText(`Response will be sent by ${requestDefConfig.response}`);
     } else {
-      responseContent = this.getResponseContent(requestDefConfig.response);
+      if (!requestDefConfig.response.includes(":")) {
+        const responseConfigDef = this.config.responses[requestDefConfig.response];
+        responseContent = this.getResponseContent(responseConfigDef.content);
+        if (responseConfigDef && responseConfigDef.responseProcessor) {
+          this.responses.runResponseProcessor(responseConfigDef.responseProcessor, responseContent, responseContent);
+        }
+      } else {
+        responseContent = this.getResponseContent(requestDefConfig.response);
+      }
       if (requestDefConfig.delay) {
         await delay(requestDefConfig.delay);
       }
@@ -58,7 +76,7 @@ export class HttpListener extends Listener {
     }
   }
 
-  private getRequestDefConfig(request: IncomingMessage): IRequestDefConfig {
+  private getRequestDefConfig(request: IIncomingMessage): IRequestDefConfig {
     const config = this.configer.loadConfig();
     const httpConfig = config.listeners.http;
     for (const [mask, output] of Object.entries(httpConfig.requests)) {
@@ -71,7 +89,7 @@ export class HttpListener extends Listener {
 
   private getResponseContent(responseDef: IResponseContentDef): IResponseContent {
     if (responseDef.startsWith("text:")) {
-      return this.getResponseContentFromText(responseDef.substr(5));
+      return this.getResponseContentFromText(responseDef.substring(5));
     }
     return this.responses.getResponseContent(responseDef);
   }
