@@ -1,20 +1,20 @@
 module.exports = {
-    extends: ["eslint:recommended"],
-    env: {
-        es6: true,
-        node: true,
-    },
-    globals: {
-        Atomics: "readonly",
-        SharedArrayBuffer: "readonly",
-    },
-    parserOptions: {
-        ecmaVersion: 2018,
-        sourceType: "module",
-    },
-    rules: {
-        "no-unused-vars": "error",
-        "no-var": "error",
-        "prefer-const": "error",
-    },
+  root: true,
+  parser: "@typescript-eslint/parser",
+  plugins: ["@typescript-eslint"],
+  extends: ["eslint:recommended", "plugin:@typescript-eslint/eslint-recommended", "plugin:@typescript-eslint/recommended"],
+  rules: {
+    "no-unused-vars": "off",
+    // next row is relevant
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        argsIgnorePattern: "^_",
+      },
+    ],
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "no-var": "error",
+    "prefer-const": "error",
+  },
 };
