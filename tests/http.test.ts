@@ -23,7 +23,9 @@ class TestingResponse implements IOutgoingMessage {
   }
 }
 const voidConsole: IConsole = {
-  log(..._attrs) {},
+  log(..._attrs) {
+    // Do not log
+  },
 };
 
 const configer = new Configer(path.join(__dirname, "config.jsonc"));
@@ -73,7 +75,9 @@ describe("http", () => {
     const incomingMessage: IIncomingMessage = {
       url: "/withProcessor",
       method: "GET",
-      headers: {},
+      headers: {
+        someHeader: "willBePassedToResponse",
+      },
     };
     const response = new TestingResponse();
     await listener.processRequest(incomingMessage, "", response);
@@ -82,6 +86,7 @@ describe("http", () => {
       headers: {
         "Content-Type": "text/json",
         Server: "HttpMockServer",
+        someHeader: "willBePassedToResponse",
       },
     });
   });

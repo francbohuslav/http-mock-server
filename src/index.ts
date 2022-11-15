@@ -30,7 +30,7 @@ if (config.listeners.http) {
 if (config.listeners.kafka) {
   for (const name of Object.keys(config.listeners.kafka)) {
     const kafkaConfig = config.listeners.kafka[name];
-    const listener = new KafkaListener(name, kafkaConfig, memory, responses);
+    const listener = new KafkaListener(name, kafkaConfig, memory, responses, console);
     responses.registerListener(name, listener);
     listener.listen().catch((err) => {
       console.error(err);
@@ -42,7 +42,7 @@ if (config.listeners.kafka) {
 if (config.listeners.amqp) {
   for (const name of Object.keys(config.listeners.amqp)) {
     const amqpConfig = config.listeners.amqp[name];
-    const listener = new AmqpListener(name, amqpConfig, memory, responses);
+    const listener = new AmqpListener(name, amqpConfig, memory, responses, console);
     responses.registerListener(name, listener);
     listener.listen().catch((err) => {
       console.error(err);

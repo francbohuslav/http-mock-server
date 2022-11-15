@@ -1,6 +1,6 @@
 import amqp, { Channel, Connection, Message } from "amqplib/callback_api";
 import { promisify } from "util";
-import { IMessageBrokerListenerConfig, IMessageBrokerResponseDefConfig, IRequestContent, IRequestDefConfig, IResponseContent } from "../interfaces";
+import { IConsole, IMessageBrokerListenerConfig, IMessageBrokerResponseDefConfig, IRequestContent, IRequestDefConfig, IResponseContent } from "../interfaces";
 import Memory from "../memory";
 import { Responses } from "../responses";
 import { MessageBrokerListener } from "./message-broker-listener";
@@ -11,8 +11,8 @@ export class AmqpListener extends MessageBrokerListener {
 
   private assertedChannels: Set<string> = new Set<string>();
 
-  constructor(name: string, config: IMessageBrokerListenerConfig, memory: Memory, responses: Responses) {
-    super(responses, memory, "amqp", name, config);
+  constructor(name: string, config: IMessageBrokerListenerConfig, memory: Memory, responses: Responses, console: IConsole) {
+    super(responses, memory, "amqp", name, config, console);
   }
 
   public async listen(): Promise<AmqpListener> {

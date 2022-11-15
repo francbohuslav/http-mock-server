@@ -17,8 +17,8 @@ import { Responses } from "../responses";
 import { Listener } from "./listener";
 
 export class HttpListener extends Listener {
-  constructor(private config: IHttpListenerConfig, private configer: Configer, private memory: Memory, responses: Responses, private console: IConsole) {
-    super(responses);
+  constructor(private config: IHttpListenerConfig, private configer: Configer, private memory: Memory, responses: Responses, console: IConsole) {
+    super(responses, console);
   }
 
   public listen(): HttpListener {
@@ -56,7 +56,7 @@ export class HttpListener extends Listener {
         const responseConfigDef = this.config.responses[requestDefConfig.response];
         responseContent = this.getResponseContent(responseConfigDef.content);
         if (responseConfigDef && responseConfigDef.responseProcessor) {
-          this.responses.runResponseProcessor(responseConfigDef.responseProcessor, responseContent, responseContent);
+          this.responses.runResponseProcessor(responseConfigDef.responseProcessor, requestObject, responseContent);
         }
       } else {
         responseContent = this.getResponseContent(requestDefConfig.response);
