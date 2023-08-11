@@ -42,9 +42,10 @@ export class HttpListener extends Listener {
   }
 
   private setCorsHeaders(response: OutgoingMessage) {
+    // Can be tested from console by: fetch("http://localhost:4444/").then(data=> {console.log(data); return data.text()}).then(data=>console.log("Response: "+data))
     response.setHeader("Access-Control-Allow-Origin", "*");
-    response.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST");
-    response.setHeader("Access-Control-Max-Age", 30 * 24 * 60 * 60);
+    response.setHeader("Access-Control-Allow-Methods", "*");
+    response.setHeader("Access-Control-Allow-Headers", "*");
   }
 
   protected async processRequest(request: IIncomingMessage, requestBody: string, response: IOutgoingMessage): Promise<void> {
