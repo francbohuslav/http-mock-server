@@ -1,4 +1,4 @@
-import http, { IncomingMessage, OutgoingMessage } from "http";
+import http, { IncomingMessage, OutgoingMessage, ServerResponse } from "http";
 import { Configer } from "../configer";
 import { delay } from "../core";
 import {
@@ -28,10 +28,23 @@ export class HttpListener extends Listener {
     return this;
   }
 
-  private requestListener(request: IncomingMessage, response: OutgoingMessage) {
+  private requestListener(request: IncomingMessage, response: ServerResponse) {
+    this.setCorsHeaders(response);
+    if (request.method === "OPTIONS") {
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+
     let requestBody = "";
     request.on("data", (chunk) => (requestBody += chunk));
     request.on("end", async () => this.processRequest(request, requestBody, response));
+  }
+
+  private setCorsHeaders(response: OutgoingMessage) {
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    response.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST");
+    response.setHeader("Access-Control-Max-Age", 30 * 24 * 60 * 60);
   }
 
   protected async processRequest(request: IIncomingMessage, requestBody: string, response: IOutgoingMessage): Promise<void> {

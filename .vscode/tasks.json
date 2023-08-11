@@ -1,19 +1,24 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-        {
-            "type": "npm",
-            "script": "start",
-            "problemMatcher": [],
-            "label": "npm: start",
-            "detail": "node ./index.js"
-        },
-        {
-            "type": "npm",
-            "script": "devel",
-            "problemMatcher": [],
-            "label": "npm: devel",
-            "detail": "nodemon ./index.js 8888"
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "start",
+      "problemMatcher": [],
+      "label": "Start"
+    },
+    {
+      "type": "npm",
+      "script": "devel",
+      "problemMatcher": [],
+      "label": "Devel"
+    },
+    {
+      "type": "npm",
+      "script": "test",
+      "group": "test",
+      "problemMatcher": [],
+      "label": "Test"
+    }
+  ]
 }
