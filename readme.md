@@ -127,6 +127,24 @@ X-Custom: value
 - Header section first
 - Empty line separator
 - Body afterwards
+- Optional status line can be the first header row (must not contain `:`)
+- Status line is evaluated only on the first header row
+
+Supported status line formats:
+
+- `HTTP/1.1 200 text`
+- `HTTP 200 text`
+- `200 text`
+- `200`
+
+Example with status line:
+
+```txt
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{"status":"created"}
+```
 
 ## Response Processors
 

@@ -6,6 +6,10 @@
       "port": 4444,
       "requests": {
         "^/test$": "file:httpResponse.json",
+        "^/statusOnly$": "file:httpResponseStatusOnly.txt",
+        "^/statusWithText$": "file:httpResponseStatusWithText.txt",
+        "^/statusHttp$": "file:httpResponseStatusHttp.txt",
+        "^/statusHttpVersion$": "file:httpResponseStatusHttpVersion.txt",
         "^/withProcessor$": {
           "sendResponse": true,
           "delay": 10,

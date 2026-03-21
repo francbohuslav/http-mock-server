@@ -53,6 +53,8 @@ export interface IRequestContent {
 
 export interface IResponseContent extends IRequestContent {
   error?: string;
+  statusCode?: number;
+  statusMessage?: string;
 }
 
 export type IResponseContentDef = string;
@@ -68,6 +70,8 @@ export interface IIncomingMessage {
 export interface IOutgoingMessage {
   setHeader(key: string, value: string): void;
   end(content: string): void;
+  statusCode?: number;
+  statusMessage?: string;
 }
 
 export interface IConsole {

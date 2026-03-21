@@ -94,7 +94,24 @@ export class Responses {
       process.exit(1);
     }
     const headers: { [name: string]: string } = {};
+    let statusCode: number | undefined;
+    let statusMessage: string | undefined;
     for (let i = 0; i < index; i++) {
+      if (i == 0 && !lines[i].includes(":")) {
+        // Supported status line formats:
+        // - HTTP/1.1 200 text
+        // - HTTP 200 text
+        // - 200 text
+        // - 200
+        const statusMatch = lines[i].match(/^(?:HTTP(?:\/\S+)?\s+)?(\d+)(?:\s+(.+))?$/);
+        if (!statusMatch) {
+          console.error(`Line ${lines[i]} is not valid header`);
+        } else {
+          statusCode = Number(statusMatch[1]);
+          statusMessage = statusMatch[2]?.trim();
+        }
+        continue;
+      }
       const match = lines[i].match(/^(.*):(.*)$/);
       if (!match) {
         console.error(`Line ${lines[i]} is not valid header`);
@@ -102,15 +119,21 @@ export class Responses {
         headers[match[1].trim()] = match[2].trim();
       }
     }
-    return { time: new Date().toISOString(), headers, body: lines.slice(index + 1).join("\n") };
+    return {
+      time: new Date().toISOString(),
+      headers,
+      body: lines.slice(index + 1).join("\n"),
+      statusCode,
+      statusMessage,
+    };
   }
 
   public runResponseProcessor(responseProcessor: string, requestContent: IRequestContent, responseContent: IResponseContent) {
     if (!responseProcessor) {
-      throw new Error("PesponseProcessor is empty");
+      throw new Error("ResponseProcessor is empty");
     }
     if (!this.responseProcessors[responseProcessor]) {
-      throw new Error(`PesponseProcessor ${responseProcessor} is not in function(requestContent, responseContent) in file processors.js.`);
+      throw new Error(`ResponseProcessor ${responseProcessor} is not in function(requestContent, responseContent) in file processors.js.`);
     }
     return this.responseProcessors[responseProcessor](requestContent, responseContent);
   }

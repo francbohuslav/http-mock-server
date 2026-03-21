@@ -109,6 +109,12 @@ export class HttpListener extends Listener {
     for (const header of Object.keys(responseContent.headers)) {
       response.setHeader(header, responseContent.headers[header]);
     }
+    if (responseContent.statusCode != undefined) {
+      response.statusCode = responseContent.statusCode;
+    }
+    if (responseContent.statusMessage) {
+      response.statusMessage = responseContent.statusMessage;
+    }
     const memoryData = this.memory.pushRequest(
       "http",
       request.url,

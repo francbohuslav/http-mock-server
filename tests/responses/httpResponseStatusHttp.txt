@@ -1,0 +1,4 @@
+HTTP 202 Accepted
+Content-Type: text/plain
+
+status http

@@ -112,4 +112,83 @@ describe("http", () => {
       },
     });
   });
+
+  it("status line with code only", async () => {
+    const incomingMessage: IIncomingMessage = {
+      url: "/statusOnly",
+      method: "GET",
+      headers: {},
+    };
+    const response = new TestingResponse();
+    await listener.processRequest(incomingMessage, "", response);
+    expect({ ...response }).toStrictEqual({
+      content: `status only
+`,
+      headers: {
+        "Content-Type": "text/plain",
+        Server: "HttpMockServer",
+      },
+      statusCode: 200,
+    });
+  });
+
+  it("status line with code and text", async () => {
+    const incomingMessage: IIncomingMessage = {
+      url: "/statusWithText",
+      method: "GET",
+      headers: {},
+    };
+    const response = new TestingResponse();
+    await listener.processRequest(incomingMessage, "", response);
+    expect({ ...response }).toStrictEqual({
+      content: `status with text
+`,
+      headers: {
+        "Content-Type": "text/plain",
+        Server: "HttpMockServer",
+      },
+      statusCode: 201,
+      statusMessage: "Created",
+    });
+  });
+
+  it("status line in HTTP format", async () => {
+    const incomingMessage: IIncomingMessage = {
+      url: "/statusHttp",
+      method: "GET",
+      headers: {},
+    };
+    const response = new TestingResponse();
+    await listener.processRequest(incomingMessage, "", response);
+    expect({ ...response }).toStrictEqual({
+      content: `status http
+`,
+      headers: {
+        "Content-Type": "text/plain",
+        Server: "HttpMockServer",
+      },
+      statusCode: 202,
+      statusMessage: "Accepted",
+    });
+  });
+
+  it("status line in HTTP version format", async () => {
+    const incomingMessage: IIncomingMessage = {
+      url: "/statusHttpVersion",
+      method: "GET",
+      headers: {},
+    };
+    const response = new TestingResponse();
+    await listener.processRequest(incomingMessage, "", response);
+    expect({ ...response }).toStrictEqual({
+      content: `status http version
+`,
+      headers: {
+        "Content-Type": "text/plain",
+        Server: "HttpMockServer",
+      },
+      statusCode: 203,
+      statusMessage: "Non-Authoritative Information",
+    });
+  });
 });
