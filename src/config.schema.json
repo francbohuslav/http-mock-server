@@ -24,6 +24,10 @@
           "required": ["port", "requests"],
           "additionalProperties": false,
           "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether HTTP listener is enabled"
+            },
             "port": {
               "minimum": 1,
               "maximum": 65534,
@@ -68,6 +72,10 @@
       "required": ["host"],
       "additionalProperties": false,
       "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether message broker endpoint is enabled"
+        },
         "host": {
           "type": "string",
           "description": "MB server address, e.g.: localhost:9092 or amqp://localhost"

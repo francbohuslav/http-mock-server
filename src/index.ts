@@ -25,13 +25,16 @@ const serverApi = http.createServer(apiRequestListener);
 serverApi.listen(config.apiPort);
 
 const responses = new Responses(responsesDirectory, configer, responseProcessors);
-if (config.listeners.http) {
+if (config.listeners.http && config.listeners.http.enabled !== false) {
   new HttpListener(config.listeners.http, configer, memory, responses, console).listen();
 }
 
 if (config.listeners.kafka) {
   for (const name of Object.keys(config.listeners.kafka)) {
     const kafkaConfig = config.listeners.kafka[name];
+    if (kafkaConfig.enabled === false) {
+      continue;
+    }
     const listener = new KafkaListener(name, kafkaConfig, memory, responses, console);
     responses.registerListener(name, listener);
     listener.listen().catch((err) => {
@@ -44,6 +47,9 @@ if (config.listeners.kafka) {
 if (config.listeners.amqp) {
   for (const name of Object.keys(config.listeners.amqp)) {
     const amqpConfig = config.listeners.amqp[name];
+    if (amqpConfig.enabled === false) {
+      continue;
+    }
     const listener = new AmqpListener(name, amqpConfig, memory, responses, console);
     responses.registerListener(name, listener);
     listener.listen().catch((err) => {

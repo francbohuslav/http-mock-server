@@ -19,6 +19,7 @@
     "kafka": {
       // custom name
       "kafka1": {
+        "enabled": false,
         "host": "localhost:9092",
         "requests": {
           // queues
@@ -40,6 +41,7 @@
     },
     "amqp": {
       "amqp1": {
+        "enabled": false,
         "host": "amqp://guest:guest@localhost:5672/dfg?adminPort=15672",
         "requests": {
           "incoming_amqp_topic": {

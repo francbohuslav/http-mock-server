@@ -10,6 +10,7 @@ export interface IConfig {
 }
 
 export interface IHttpListenerConfig {
+  enabled?: boolean;
   port: string;
   requests: { [key: string]: IRequestDefType };
   responses: { [name: string]: IHttpResponseDefConfig };
@@ -18,6 +19,7 @@ export interface IHttpListenerConfig {
 export type IRequestDefType = IResponseContentDef | IRequestDefConfig;
 
 export interface IMessageBrokerListenerConfig {
+  enabled?: boolean;
   host: string;
   requests: { [topic: string]: IRequestDefConfig };
   responses: { [name: string]: IMessageBrokerResponseDefConfig };

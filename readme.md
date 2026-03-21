@@ -80,6 +80,7 @@ Schema: `src/config.schema.json`
   "apiPort": 4445,
   "listeners": {
     "http": {
+      "enabled": true,
       "port": 4444,
       "requests": {
         "^/health$": "text:ok",
@@ -101,15 +102,40 @@ Schema: `src/config.schema.json`
 }
 ```
 
+`listeners.http.enabled` is optional. If omitted, listener is enabled by default.
+
 ### Message broker request mapping
 
 For Kafka/AMQP listeners:
 
+- `enabled` can be set per endpoint (`listeners.kafka.<name>` / `listeners.amqp.<name>`)
 - `requests.<topic>` defines behavior for incoming topic/queue
 - `sendResponse` decides whether a response is sent
 - `response` supports:
   - local response name (inside the same listener)
   - cross-listener form `listenerName:responseName`
+
+Kafka endpoint example:
+
+```json
+"kafka": {
+  "kafka1": {
+    "enabled": false,
+    "host": "localhost:9092"
+  }
+}
+```
+
+AMQP endpoint example:
+
+```json
+"amqp": {
+  "amqp1": {
+    "enabled": true,
+    "host": "amqp://guest:guest@localhost:5672/dfg?adminPort=15672"
+  }
+}
+```
 
 ## Response Files
 
