@@ -13,6 +13,10 @@
   },
   "author": "Bogan <franc.bohuslav@gmail.com>",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/francbohuslav/http-mock-server.git"
+  },
   "dependencies": {
     "amqplib": "^0.10.1",
     "jsonc": "^2.0.0",

@@ -17,7 +17,13 @@ import { Responses } from "../responses";
 import { Listener } from "./listener";
 
 export class HttpListener extends Listener {
-  constructor(private config: IHttpListenerConfig, private configer: Configer, private memory: Memory, responses: Responses, console: IConsole) {
+  constructor(
+    private config: IHttpListenerConfig,
+    private configer: Configer,
+    private memory: Memory,
+    responses: Responses,
+    console: IConsole
+  ) {
     super(responses, console);
   }
 
@@ -38,7 +44,9 @@ export class HttpListener extends Listener {
 
     let requestBody = "";
     request.on("data", (chunk) => (requestBody += chunk));
-    request.on("end", async () => this.processRequest(request, requestBody, response));
+    request.on("end", async () =>
+      this.processRequest(request, requestBody, response)
+    );
   }
 
   private setCorsHeaders(response: OutgoingMessage) {
@@ -48,9 +56,20 @@ export class HttpListener extends Listener {
     response.setHeader("Access-Control-Allow-Headers", "*");
   }
 
-  protected async processRequest(request: IIncomingMessage, requestBody: string, response: IOutgoingMessage): Promise<void> {
-    const requestObject: IRequestContent = { time: new Date().toISOString(), headers: {}, body: requestBody };
-    this.console.log(`-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`);
+  protected async processRequest(
+    request: IIncomingMessage,
+    requestBody: string,
+    response: IOutgoingMessage
+  ): Promise<void> {
+    const requestObject: IRequestContent = {
+      time: new Date().toISOString(),
+      url: request.url,
+      headers: {},
+      body: requestBody,
+    };
+    this.console.log(
+      `-------------------------------------------------------------------------------- ${new Date().toLocaleString()}`
+    );
     this.console.log(`Received ${request.method} request for ${request.url}`);
     requestObject.headers = request.headers;
     this.printHeaders(request.headers);
@@ -64,13 +83,20 @@ export class HttpListener extends Listener {
 
     let responseContent: IResponseContent;
     if (this.responses.isExternalResponse(requestDefConfig)) {
-      responseContent = this.getResponseContentFromText(`Response will be sent by ${requestDefConfig.response}`);
+      responseContent = this.getResponseContentFromText(
+        `Response will be sent by ${requestDefConfig.response}`
+      );
     } else {
       if (!requestDefConfig.response.includes(":")) {
-        const responseConfigDef = this.config.responses[requestDefConfig.response];
+        const responseConfigDef =
+          this.config.responses[requestDefConfig.response];
         responseContent = this.getResponseContent(responseConfigDef.content);
         if (responseConfigDef && responseConfigDef.responseProcessor) {
-          this.responses.runResponseProcessor(responseConfigDef.responseProcessor, requestObject, responseContent);
+          this.responses.runResponseProcessor(
+            responseConfigDef.responseProcessor,
+            requestObject,
+            responseContent
+          );
         }
       } else {
         responseContent = this.getResponseContent(requestDefConfig.response);
@@ -83,7 +109,12 @@ export class HttpListener extends Listener {
     for (const header of Object.keys(responseContent.headers)) {
       response.setHeader(header, responseContent.headers[header]);
     }
-    const memoryData = this.memory.pushRequest("http", request.url, requestObject, responseContent);
+    const memoryData = this.memory.pushRequest(
+      "http",
+      request.url,
+      requestObject,
+      responseContent
+    );
     response.end(responseContent.body);
     if (this.responses.isExternalResponse(requestDefConfig)) {
       this.responses.sendResponse("http", requestDefConfig, memoryData);
@@ -101,7 +132,9 @@ export class HttpListener extends Listener {
     throw new Error("Unknown request");
   }
 
-  private getResponseContent(responseDef: IResponseContentDef): IResponseContent {
+  private getResponseContent(
+    responseDef: IResponseContentDef
+  ): IResponseContent {
     if (responseDef.startsWith("text:")) {
       return this.getResponseContentFromText(responseDef.substring(5));
     }
@@ -114,7 +147,10 @@ export class HttpListener extends Listener {
     return res;
   }
 
-  public sendResponse(_responseConfigDef: IMessageBrokerResponseDefConfig, _responseContent: IResponseContent): Promise<void> {
+  public sendResponse(
+    _responseConfigDef: IMessageBrokerResponseDefConfig,
+    _responseContent: IResponseContent
+  ): Promise<void> {
     throw new Error("Method not implemented.");
   }
 }

@@ -1,5 +1,18 @@
-import { Consumer, Kafka, KafkaMessage, PartitionAssigners, Producer } from "kafkajs";
-import { IConsole, IMessageBrokerListenerConfig, IMessageBrokerResponseDefConfig, IRequestContent, IRequestDefConfig, IResponseContent } from "../interfaces";
+import {
+  Consumer,
+  Kafka,
+  KafkaMessage,
+  PartitionAssigners,
+  Producer,
+} from "kafkajs";
+import {
+  IConsole,
+  IMessageBrokerListenerConfig,
+  IMessageBrokerResponseDefConfig,
+  IRequestContent,
+  IRequestDefConfig,
+  IResponseContent,
+} from "../interfaces";
 import Memory from "../memory";
 import { Responses } from "../responses";
 import { MessageBrokerListener } from "./message-broker-listener";
@@ -8,7 +21,13 @@ export class KafkaListener extends MessageBrokerListener {
   private consumer: Consumer;
   private producer: Producer;
 
-  constructor(name: string, config: IMessageBrokerListenerConfig, memory: Memory, responses: Responses, console: IConsole) {
+  constructor(
+    name: string,
+    config: IMessageBrokerListenerConfig,
+    memory: Memory,
+    responses: Responses,
+    console: IConsole
+  ) {
     super(responses, memory, "kafka", name, config, console);
   }
 
@@ -33,7 +52,11 @@ export class KafkaListener extends MessageBrokerListener {
     await this.consumer.run({
       eachMessage: async ({ topic, message }) => {
         try {
-          await this.processRequest(topic, message, this.config.requests[topic]);
+          await this.processRequest(
+            topic,
+            message,
+            this.config.requests[topic]
+          );
         } catch (ex) {
           console.error(ex);
         }
@@ -43,20 +66,30 @@ export class KafkaListener extends MessageBrokerListener {
     return this;
   }
 
-  private async processRequest(topic: string, request: KafkaMessage, requestDefConfig: IRequestDefConfig): Promise<void> {
+  private async processRequest(
+    topic: string,
+    request: KafkaMessage,
+    requestDefConfig: IRequestDefConfig
+  ): Promise<void> {
     const requestObject: IRequestContent = {
       time: new Date().toISOString(),
+      url: topic,
       headers: request.headers,
       body: request.value.toString(),
     };
     this.processMessageBrokerRequest(topic, requestObject, requestDefConfig);
   }
 
-  public async sendResponse(responseConfig: IMessageBrokerResponseDefConfig, responseContent: IResponseContent): Promise<void> {
+  public async sendResponse(
+    responseConfig: IMessageBrokerResponseDefConfig,
+    responseContent: IResponseContent
+  ): Promise<void> {
     await this.printSendResponse(responseConfig, responseContent);
     await this.producer.send({
       topic: responseConfig.targetTopic,
-      messages: [{ headers: responseContent.headers, value: responseContent.body }],
+      messages: [
+        { headers: responseContent.headers, value: responseContent.body },
+      ],
     });
   }
 }

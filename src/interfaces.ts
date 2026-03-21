@@ -46,6 +46,7 @@ export interface IMessageBrokerResponseDefConfig {
 
 export interface IRequestContent {
   time: string;
+  url?: string;
   headers?: { [name: string]: any };
   body?: string;
 }

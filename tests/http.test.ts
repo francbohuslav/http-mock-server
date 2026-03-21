@@ -1,12 +1,20 @@
 import path from "path";
 import { Configer } from "../src/configer";
-import { IConsole, IIncomingMessage, IOutgoingMessage } from "../src/interfaces";
+import {
+  IConsole,
+  IIncomingMessage,
+  IOutgoingMessage,
+} from "../src/interfaces";
 import { HttpListener } from "../src/listeners/http";
 import Memory from "../src/memory";
 import { Responses } from "../src/responses";
 
 class TestingHttpListener extends HttpListener {
-  public override processRequest(request: IIncomingMessage, requestBody: string, response: IOutgoingMessage): Promise<void> {
+  public override processRequest(
+    request: IIncomingMessage,
+    requestBody: string,
+    response: IOutgoingMessage
+  ): Promise<void> {
     return super.processRequest(request, requestBody, response);
   }
 }
@@ -31,10 +39,23 @@ const voidConsole: IConsole = {
 const configer = new Configer(path.join(__dirname, "config.jsonc"));
 const config = configer.loadConfig();
 const responsesDirectory = path.join(__dirname, "responses");
-const responseProcessors = require(path.join(responsesDirectory, "processors.js"));
+const responseProcessors = require(path.join(
+  responsesDirectory,
+  "processors.js"
+));
 const memory = new Memory();
-const responses = new Responses(responsesDirectory, configer, responseProcessors);
-const listener = new TestingHttpListener(config.listeners.http, configer, memory, responses, voidConsole);
+const responses = new Responses(
+  responsesDirectory,
+  configer,
+  responseProcessors
+);
+const listener = new TestingHttpListener(
+  config.listeners.http,
+  configer,
+  memory,
+  responses,
+  voidConsole
+);
 
 describe("http", () => {
   it("unknown request", async () => {
@@ -86,6 +107,7 @@ describe("http", () => {
       headers: {
         "Content-Type": "text/json",
         Server: "HttpMockServer",
+        requestUrl: "/withProcessor",
         someHeader: "willBePassedToResponse",
       },
     });

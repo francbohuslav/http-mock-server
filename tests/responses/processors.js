@@ -7,5 +7,6 @@ module.exports = {
   upperCase: (requestContent, responseContent) => {
     responseContent.body = responseContent.body.toUpperCase();
     responseContent.headers.someHeader = requestContent.headers.someHeader;
+    responseContent.headers.requestUrl = requestContent.url;
   },
 };

@@ -1,36 +1,204 @@
-# HTTP mock server
+# HTTP Mock Server
 
-Print out requests in console window and send specific response.
+[![GitHub Repo](https://img.shields.io/badge/repo-http--mock--server-181717?logo=github)](https://github.com/francbohuslav/http-mock-server)
+[![GitHub Stars](https://img.shields.io/github/stars/francbohuslav/http-mock-server?style=flat)](https://github.com/francbohuslav/http-mock-server/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/francbohuslav/http-mock-server?style=flat)](https://github.com/francbohuslav/http-mock-server/network/members)
+[![GitHub Issues](https://img.shields.io/github/issues/francbohuslav/http-mock-server)](https://github.com/francbohuslav/http-mock-server/issues)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/francbohuslav/http-mock-server)](https://github.com/francbohuslav/http-mock-server/commits/master)
+[![License](https://img.shields.io/github/license/francbohuslav/http-mock-server)](https://github.com/francbohuslav/http-mock-server/blob/master/LICENSE)
 
-Home page: <https://github.com/francbohuslav/http-mock-server>  
-Skype: [cis_franc](skype:cis_franc), E-mail: [bohuslav.franc@unicornuniverse.eu](bohuslav.franc@unicornuniverse.eu)
+Simple mock server for HTTP, Kafka, and AMQP workflows.
 
----
+It captures incoming requests/messages, stores history in memory, and returns configured responses from inline text, files, or custom response processors.
 
-## Preparation
+## Features
 
-[Node.js](https://nodejs.org/) must be installed.
+- HTTP listener with regex-based routing
+- Kafka and AMQP listeners with configurable response flow
+- Delayed responses (`delay` in milliseconds)
+- Custom response processors (`responses/processors.js`)
+- In-memory API to inspect request/response history
+- JSONC configuration with schema (`src/config.schema.json`)
 
----
+## Requirements
 
-## Instalation
+- [Node.js](https://nodejs.org/) installed
+- npm
 
-1. Clone GIT repository https://github.com/francbohuslav/http-mock-server.git.
-2. Go to directory of http-mock-server.
-3. Install node modules by command `npm i`.
-4. Build app by command `npm run build`.
+## Installation
 
-Update of app can be done by `pull_and_build.bat` file.
+```bash
+npm install
+npm run build
+```
 
----
+## Run
 
-## Usage
+After build:
 
-1. Run command `node index`.
-2. Execute requests against localhost:4444
-3. Get requests history on address http://localhost:4445/
-4. Get last request info on address http://localhost:4445/get-last-request/{your-request-url}
+```bash
+npm start
+```
 
-### Options
+Development mode (restart on changes in `dist`):
 
-Look into `config.jsonc` and I think you will understand :-).
+```bash
+npm run devel
+```
+
+TypeScript watch mode:
+
+```bash
+npm run watch
+```
+
+## How It Works
+
+The app starts:
+
+- API server for request history (`apiPort`)
+- HTTP listener (`listeners.http`)
+- Optional Kafka listeners (`listeners.kafka`)
+- Optional AMQP listeners (`listeners.amqp`)
+
+Incoming data is transformed to `requestContent`, matched against configuration, and response is produced from:
+
+- `text:...`
+- `file:...`
+- named response definition with optional `responseProcessor`
+
+## Configuration
+
+Main config file: `config.jsonc`  
+Schema: `src/config.schema.json`
+
+### Minimal HTTP example
+
+```json
+{
+  "$schema": "./src/config.schema.json",
+  "apiPort": 4445,
+  "listeners": {
+    "http": {
+      "port": 4444,
+      "requests": {
+        "^/health$": "text:ok",
+        "^/users/\\d+$": {
+          "sendResponse": true,
+          "delay": 100,
+          "response": "userDetail"
+        },
+        "": "text:unknown request"
+      },
+      "responses": {
+        "userDetail": {
+          "content": "file:userDetail.json",
+          "responseProcessor": "enrichResponse"
+        }
+      }
+    }
+  }
+}
+```
+
+### Message broker request mapping
+
+For Kafka/AMQP listeners:
+
+- `requests.<topic>` defines behavior for incoming topic/queue
+- `sendResponse` decides whether a response is sent
+- `response` supports:
+  - local response name (inside the same listener)
+  - cross-listener form `listenerName:responseName`
+
+## Response Files
+
+`file:...` points to a file in the `responses` directory.
+
+Response file format:
+
+```txt
+Content-Type: application/json
+X-Custom: value
+
+{"status":"ok"}
+```
+
+- Header section first
+- Empty line separator
+- Body afterwards
+
+## Response Processors
+
+Processor file: `responses/processors.js`
+
+Each processor has signature:
+
+```js
+function processor(requestContent, responseContent) {
+  // modify responseContent here
+}
+```
+
+`requestContent.url` is available for custom routing logic:
+
+- HTTP listener: original request URL (for example `/api/orders/123`)
+- Kafka listener: incoming topic name
+- AMQP listener: incoming topic/queue name
+
+Example:
+
+```js
+const responseProcessors = {
+  enrichResponse(requestContent, responseContent) {
+    if (requestContent.url?.startsWith("/users/")) {
+      responseContent.headers["X-Mock-Source"] = "users-endpoint";
+    }
+  },
+};
+```
+
+## History API
+
+API port is configured by `apiPort`.
+
+- `GET /` - return full memory content
+- `GET /get-last-request/{endpoint}` - return last request for endpoint
+- `GET /clear-history/{anything}` - clear in-memory history
+
+Notes:
+
+- HTTP requests are stored under their URL path (for example `/health`)
+- Kafka/AMQP requests are stored under `/{topic}`
+
+## npm Scripts
+
+- `npm run build` - compile TypeScript to `dist`
+- `npm start` - run compiled app
+- `npm run devel` - run app with nodemon on `dist`
+- `npm run watch` - TypeScript watch mode
+- `npm test` - run Jest tests
+
+## Testing
+
+Run all tests:
+
+```bash
+npm test
+```
+
+## Project Structure
+
+- `src/index.ts` - application entry point
+- `src/listeners/` - HTTP, Kafka, AMQP listeners
+- `src/responses.ts` - response resolution and processor execution
+- `src/memory.ts` - in-memory request/response store
+- `responses/` - response files and processors
+- `tests/` - unit/integration tests
+
+## Troubleshooting
+
+- Ensure `config.jsonc` exists at project root before running app
+- Ensure `responses/processors.js` exports an object with processor functions
+- If a processor name is configured but missing in `processors.js`, startup/request handling will fail
+- For broker listeners, verify host and topic/queue names match your environment
