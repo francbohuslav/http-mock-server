@@ -1,3 +1,4 @@
+import fs from "fs";
 import http from "http";
 import { IncomingMessage, OutgoingMessage } from "node:http";
 import path from "path";
@@ -15,6 +16,7 @@ const responsesDirectory = path.join(__dirname, "..", "responses");
 const configer = new Configer(path.join(__dirname, "..", "config.jsonc"));
 const config: IConfig = configer.loadConfig();
 const responseProcessors = require(path.join(responsesDirectory, "processors.js"));
+const requestHistoryGuiPath = path.join(__dirname, "..", "request-history.html");
 
 const memory = new Memory();
 
@@ -56,16 +58,29 @@ function apiRequestListener(request: IncomingMessage, response: OutgoingMessage)
   request.on("data", (chunk) => (requestBody += chunk));
   request.on("end", () => {
     let output = null;
-    if (request.url.startsWith("/get-last-request/")) {
-      output = memory.getLastRequest(request.url.substr(17));
+    if (request.url.startsWith("/get-all-requests/")) {
+      output = memory.getAllRequests();
+    } else if (request.url.startsWith("/get-last-request/")) {
+      if (request.url.substr(17) === "") {
+        output = memory.getAllRequests();
+      } else {
+        output = memory.getLastRequest(request.url.substr(17));
+      }
     } else if (request.url.startsWith("/clear-history/")) {
       memory.clear();
       output = "Memory cleared";
     } else {
-      output = memory.getAllRequests();
+      response.setHeader("Server", "HttpMockServer");
+      response.setHeader("Content-Type", "text/html; charset=utf-8");
+      response.end(renderRequestHistoryGui());
+      return;
     }
     response.setHeader("Server", "HttpMockServer");
     response.setHeader("Content-Type", "application/json");
     response.end(JSON.stringify(output, null, 2));
   });
+}
+
+function renderRequestHistoryGui(): string {
+  return fs.readFileSync(requestHistoryGuiPath, "utf-8");
 }

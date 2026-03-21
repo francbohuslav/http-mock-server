@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Request History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.production.min.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+    ></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      pre {
+        overflow-x: hidden !important;
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-all !important;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-100 text-slate-900 min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useEffect, useMemo, useState } = React;
+
+      function formatLocalTime(value) {
+        if (!value) return "-";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return date.toLocaleString();
+      }
+
+      function JsonModal({ title, payload, onClose }) {
+        const [content, setContent] = useState("");
+        const [originalContent, setOriginalContent] = useState("");
+        const [isApplied, setIsApplied] = useState(false);
+
+        useEffect(() => {
+          if (!payload) {
+            setContent("");
+            setOriginalContent("");
+            setIsApplied(false);
+            return;
+          }
+
+          const formattedPayload = JSON.stringify(payload, null, 2);
+          setContent(formattedPayload);
+          setOriginalContent(formattedPayload);
+          setIsApplied(false);
+        }, [payload]);
+
+        if (!payload) return null;
+        return (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 md:p-6 z-50">
+            <div className="bg-white rounded-lg shadow-xl w-[96vw] max-w-[1400px] h-[90vh] flex flex-col">
+              <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+                <h2 className="font-semibold text-lg">{title}</h2>
+                <div className="flex items-center gap-2">
+                  <button
+                    className={`px-3 py-1 rounded text-white ${
+                      isApplied
+                        ? "bg-amber-600 hover:bg-amber-700"
+                        : "bg-indigo-600 hover:bg-indigo-700"
+                    }`}
+                    onClick={() => {
+                      if (isApplied) {
+                        setContent(originalContent);
+                        setIsApplied(false);
+                        return;
+                      }
+
+                      setContent((prev) => prev.replace(/\\n/g, "\n"));
+                      setIsApplied(true);
+                    }}
+                  >
+                    {isApplied ? "Revert" : "Apply \\n"}
+                  </button>
+                  <button
+                    className="px-3 py-1 rounded bg-slate-200 hover:bg-slate-300"
+                    onClick={onClose}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+              <textarea
+                className="p-4 overflow-y-auto text-sm leading-6 bg-slate-50 rounded-b-lg w-full flex-1 min-h-0 resize-none font-mono"
+                value={content}
+                onChange={(event) => setContent(event.target.value)}
+              />
+            </div>
+          </div>
+        );
+      }
+
+      function EndpointAccordion({ endpoint, records }) {
+        const [isOpen, setIsOpen] = useState(false);
+        const [modalData, setModalData] = useState(null);
+        const sortedRecords = useMemo(() => {
+          return [...records].sort((a, b) => {
+            const aTime = new Date(a?.request?.time || "").getTime();
+            const bTime = new Date(b?.request?.time || "").getTime();
+            return bTime - aTime;
+          });
+        }, [records]);
+
+        return (
+          <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+            <button
+              className="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-slate-50"
+              onClick={() => setIsOpen((prev) => !prev)}
+            >
+              <span className="font-medium">{endpoint}</span>
+              <span className="text-sm text-slate-500">{`${records.length} request(s)`}</span>
+            </button>
+
+            {isOpen && (
+              <div className="overflow-x-auto border-t border-slate-200">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-100 text-slate-700">
+                    <tr>
+                      <th className="px-4 py-2 text-left">Time</th>
+                      <th className="px-4 py-2 text-left">Type</th>
+                      <th className="px-4 py-2 text-left">Request</th>
+                      <th className="px-4 py-2 text-left">Response</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedRecords.map((item, index) => (
+                      <tr
+                        key={`${endpoint}-${index}`}
+                        className="border-t border-slate-100"
+                      >
+                        <td className="px-4 py-2 align-top">
+                          {formatLocalTime(item.request?.time || "")}
+                        </td>
+                        <td className="px-4 py-2 align-top">
+                          {item.type || "-"}
+                        </td>
+                        <td className="px-4 py-2 align-top">
+                          <button
+                            className="px-3 py-1 rounded bg-sky-600 hover:bg-sky-700 text-white"
+                            onClick={() =>
+                              setModalData({
+                                title: "Request JSON",
+                                payload: item.request,
+                              })
+                            }
+                          >
+                            Show JSON
+                          </button>
+                        </td>
+                        <td className="px-4 py-2 align-top">
+                          <button
+                            className="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white"
+                            onClick={() =>
+                              setModalData({
+                                title: "Response JSON",
+                                payload: item.response,
+                              })
+                            }
+                          >
+                            Show JSON
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <JsonModal
+              title={modalData?.title || ""}
+              payload={modalData?.payload || null}
+              onClose={() => setModalData(null)}
+            />
+          </div>
+        );
+      }
+
+      function App() {
+        const [history, setHistory] = useState({});
+        const [status, setStatus] = useState("loading");
+        const [isClearing, setIsClearing] = useState(false);
+
+        const loadHistory = () => {
+          setStatus("loading");
+          return fetch("/get-all-requests/")
+            .then((response) => response.json())
+            .then((data) => {
+              setHistory(data || {});
+              setStatus("ready");
+            })
+            .catch(() => setStatus("error"));
+        };
+
+        const clearHistory = () => {
+          setIsClearing(true);
+          fetch("/clear-history/")
+            .then(() => loadHistory())
+            .finally(() => setIsClearing(false));
+        };
+
+        useEffect(() => {
+          loadHistory();
+        }, []);
+
+        const endpoints = useMemo(() => Object.keys(history).sort(), [history]);
+
+        return (
+          <main className="max-w-6xl mx-auto p-6">
+            <h1 className="text-2xl font-bold mb-2">Request History</h1>
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <p className="text-slate-600">
+                History grouped by endpoint. Expand endpoint to inspect
+                individual requests.
+              </p>
+              <button
+                className="px-3 py-2 rounded bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 text-white"
+                onClick={clearHistory}
+                disabled={isClearing}
+              >
+                {isClearing ? "Clearing..." : "Clear history"}
+              </button>
+            </div>
+
+            {status === "loading" && (
+              <div className="text-slate-600">Loading...</div>
+            )}
+            {status === "error" && (
+              <div className="text-red-700 bg-red-50 border border-red-200 rounded p-3">
+                Unable to load history data.
+              </div>
+            )}
+            {status === "ready" && endpoints.length === 0 && (
+              <div className="text-slate-600 bg-white border border-slate-200 rounded p-4">
+                No requests in memory.
+              </div>
+            )}
+            {status === "ready" && endpoints.length > 0 && (
+              <div className="space-y-3">
+                {endpoints.map((endpoint) => (
+                  <EndpointAccordion
+                    key={endpoint}
+                    endpoint={endpoint}
+                    records={history[endpoint] || []}
+                  />
+                ))}
+              </div>
+            )}
+          </main>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>
