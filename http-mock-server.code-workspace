@@ -1,8 +1,13 @@
 {
   "folders": [
     {
-      "path": "."
-    }
+      "name": "📝 Source",
+      "path": ".",
+    },
+    {
+      "name": "🐋 Docker",
+      "path": "../docker",
+    },
   ],
   "settings": {
     "files.exclude": {
@@ -11,12 +16,12 @@
       "**/.hg": true,
       "**/CVS": true,
       "**/.DS_Store": true,
-      "dist": true
+      "dist": true,
     },
     "git.enabled": true,
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "always"
+      "source.organizeImports": "always",
     },
-    "editor.formatOnSave": true
-  }
+    "editor.formatOnSave": true,
+  },
 }
