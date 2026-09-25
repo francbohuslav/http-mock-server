@@ -1,7 +1,7 @@
 # Architecture
 
-Functional behaviour is specified in [functionality.md](functionality.md). This document describes how the code is
-organised and which names mean what.
+User-facing behaviour is described in [readme.md](../readme.md) and guarded by the contract tests in `tests/contract`.
+This document describes how the code is organised and which names mean what.
 
 ## Glossary
 

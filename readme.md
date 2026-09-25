@@ -270,7 +270,7 @@ npm test
 - `src/history/` - in-memory history and History API
 - `responses/` - response files and processors
 - `tests/` - contract (black-box), broker and unit tests
-- `docs/functionality.md` - complete functional specification, `docs/architecture.md` - code structure and glossary
+- `docs/architecture.md` - code structure and glossary
 
 ## Troubleshooting
 
