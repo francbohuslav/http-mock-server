@@ -102,4 +102,4 @@ The contract tests were written against version 1.0.13 first and passed there (t
 
 - Node.js 22+, TypeScript 6.0 (TypeScript 7 is not supported by ts-jest yet).
 - `kafkajs` 2, `amqplib` 2 (bundled types), `jsonc-parser`, `ajv`.
-- Jest 30 + ts-jest, [Biome](https://biomejs.dev/) linter (`biome.json`, formatter disabled – formatting stays with Prettier).
+- Jest 30 + ts-jest, [Biome](https://biomejs.dev/) linter and formatter (`biome.json`).

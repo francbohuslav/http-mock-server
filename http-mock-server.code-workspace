@@ -9,6 +9,9 @@
       "path": "../docker",
     },
   ],
+  "extensions": {
+    "recommendations": ["biomejs.biome"],
+  },
   "settings": {
     "files.exclude": {
       "**/.git": true,
@@ -23,5 +26,6 @@
       "source.organizeImports": "always",
     },
     "editor.formatOnSave": true,
+    "editor.defaultFormatter": "biomejs.biome",
   },
 }

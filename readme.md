@@ -251,6 +251,7 @@ Schema violations of `config.jsonc` are printed on startup as `Config warning: â
 - `npm run watch` - TypeScript watch mode
 - `npm test` - build and run Jest tests
 - `npm run lint` - Biome linter, `npm run lint-fix` - apply safe fixes
+- `npm run format` - format code with Biome, `npm run check` - lint + formatting check
 
 ## Testing
 
