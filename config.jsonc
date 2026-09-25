@@ -14,6 +14,13 @@
           // "response": "kafka1:sampleResponse1"
         },
         "": "file:defaultResponse.txt"
+      },
+      "responses": {
+        // custom name
+        "sampleResponse1": {
+          "content": "text:This is delayed response",
+          "responseProcessor": "sampleHttpProcessor"
+        }
       }
     },
     "kafka": {

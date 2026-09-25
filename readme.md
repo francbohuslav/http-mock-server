@@ -22,7 +22,7 @@ It captures incoming requests/messages, stores history in memory, and returns co
 
 ## Requirements
 
-- [Node.js](https://nodejs.org/) installed
+- [Node.js](https://nodejs.org/) 22 or newer
 - npm
 
 ## Installation
@@ -150,11 +150,12 @@ X-Custom: value
 {"status":"ok"}
 ```
 
-- Header section first
-- Empty line separator
-- Body afterwards
+- Header section first (`Name: value`, split on the first `:`)
+- Empty line separator (mandatory, otherwise the request is answered with `500`)
+- Body afterwards, whitespace is preserved (CRLF line endings are converted to LF)
 - Optional status line can be the first header row (must not contain `:`)
 - Status line is evaluated only on the first header row
+- Response files are read on every request, so they can be edited without restart
 
 Supported status line formats:
 
@@ -224,14 +225,23 @@ const responseProcessors = {
 
 API port is configured by `apiPort`.
 
-- `GET /` - return full memory content
-- `GET /get-last-request/{endpoint}` - return last request for endpoint
-- `GET /clear-history/{anything}` - clear in-memory history
+- `GET /` (or any other URL) - history web page
+- `GET /get-all-requests/` - full history as JSON
+- `GET /get-last-request/{endpoint}` - last request for endpoint as JSON (empty body when there is none)
+- `GET /clear-history/` - clear in-memory history
 
 Notes:
 
-- HTTP requests are stored under their URL path (for example `/health`)
-- Kafka/AMQP requests are stored under `/{topic}`
+- HTTP requests are stored under their URL including the query string (for example `/health` or `/users?id=1`),
+  so `/get-last-request/health` returns the last request of `/health`
+- Kafka/AMQP requests are stored under `/{topic}`, the reply is added when it is sent
+
+## Hot reload
+
+Without restart you can change HTTP `requests` and `responses`, broker `responses` and all response files.
+Ports, hosts, broker subscriptions and `processors.js` require a restart.
+
+Schema violations of `config.jsonc` are printed on startup as `Config warning: …`, the server starts anyway.
 
 ## npm Scripts
 
@@ -239,7 +249,8 @@ Notes:
 - `npm start` - run compiled app
 - `npm run devel` - run app with nodemon on `dist`
 - `npm run watch` - TypeScript watch mode
-- `npm test` - run Jest tests
+- `npm test` - build and run Jest tests
+- `npm run lint` - ESLint
 
 ## Testing
 
@@ -251,16 +262,19 @@ npm test
 
 ## Project Structure
 
-- `src/index.ts` - application entry point
-- `src/listeners/` - HTTP, Kafka, AMQP listeners
-- `src/responses.ts` - response resolution and processor execution
-- `src/memory.ts` - in-memory request/response store
+- `src/index.ts` - application entry point, `src/app.ts` - wiring of all parts
+- `src/config/` - loading, validation and normalisation of `config.jsonc`
+- `src/replies/` - response files, processors, building of replies
+- `src/listeners/` - HTTP listener and Kafka/AMQP listeners
+- `src/history/` - in-memory history and History API
 - `responses/` - response files and processors
-- `tests/` - unit/integration tests
+- `tests/` - contract (black-box), broker and unit tests
+- `docs/functionality.md` - complete functional specification, `docs/architecture.md` - code structure and glossary
 
 ## Troubleshooting
 
 - Ensure `config.jsonc` exists at project root before running app
+  (or set `HTTP_MOCK_SERVER_ROOT` to a directory with `config.jsonc` and `responses/`)
 - Ensure `responses/processors.js` exports an object with processor functions
-- If a processor name is configured but missing in `processors.js`, startup/request handling will fail
+- If a processor name is configured but missing in `processors.js`, the request is answered with `500`
 - For broker listeners, verify host and topic/queue names match your environment

@@ -199,7 +199,7 @@ module.exports = {
   `fromBeginning: false` – only messages produced after startup are received.
 - Subscribes to every key of `requests`.
 - Incoming message → `requestContent = { time, url: topic, headers: message.headers, body: message.value.toString() }`.
-  Kafka header values are `Buffer`s; in the history JSON they appear as `{ "type": "Buffer", "data": [...] }`.
+  Kafka header values are `Buffer`s; in the history JSON they appear as `{ "type": "Buffer", "data": [...] }` (Q16).
 - Reply is sent by `producer.send({ topic: targetTopic, messages: [{ headers, value: body }] })`.
   `statusCode`/`statusMessage` are ignored.
 
@@ -292,7 +292,7 @@ reply is sent.
 | Q1  | Response file without an empty line calls `process.exit(1)` in the middle of a request                    | **fix** – error, HTTP answers 500                           |
 | Q2  | Kafka/AMQP handlers do not await the processing; a rejection (e.g. failing processor) is unhandled and crashes Node | **fix** – await and log                            |
 | Q3  | AMQP listener without `queueSettings` throws TypeError → exit(1)                                          | **fix** – treat as `{}`                                     |
-| Q4  | `/get-last-request/` (empty endpoint) looks up key `/` and usually returns an empty body – the intended “return all” branch is unreachable | **fix** – return the whole history                         |
+| Q4  | `/get-last-request/` (empty endpoint) looks up key `/`; the “return all” branch in the code was unreachable | keep – `/get-last-request/` is the last request of the root URL `/`; the dead branch was removed |
 | Q5  | `http.responses` is not hot-reloaded while `http.requests` is                                             | **fix** – both reload                                       |
 | Q6  | Body lines of response files are trimmed – JSON indentation and trailing spaces are lost                  | **fix** – only strip `\r` and BOM; headers are still trimmed |
 | Q7  | Broker rule in the short (string) form crashes                                                           | **fix** – normalised like HTTP rules                        |
@@ -304,3 +304,19 @@ reply is sent.
 | Q13 | Misleading processor error message, typo `getQueueSettins`                                               | **fix**                                                     |
 | Q14 | `apiPort`/`port` typed as `string` in TS but `integer` in the schema; config never validated              | **fix** – validate on startup, report violations as warnings only (old configs keep working) |
 | Q15 | Header lines are split on the last `:`; a header value containing `:` (URL) yields an invalid header name → unhandled exception crashes the process | **fix** – split on the first `:` |
+| Q16 | Kafka header values are `Buffer`s in `requestContent` and in history JSON (`{type:"Buffer",data}`) | **fix** – converted to strings (`.toString()` in processors keeps working) |
+| Q17 | A processor setting a header to `undefined` or an invalid value crashes the process (unhandled `setHeader` error) | **fix** – `undefined`/`null` headers are skipped, invalid ones produce 500 |
+| Q18 | Broker rule referencing `text:`/`file:` directly fails with an obscure error (no target topic) | **fix** – clear error message |
+| Q19 | Rule object without `sendResponse` does not reply on brokers | keep (documented) – the short string form replies |
+| Q20 | Sample `config.jsonc` referenced a non-existing HTTP template `sampleResponse1` | **fix** – sample template added |
+
+## 12. Changes after the rewrite (1.1.0)
+
+The rewrite keeps every contract above. Differences are exactly the *fix* decisions in the table. In addition:
+
+- `HTTP_MOCK_SERVER_ROOT` environment variable overrides the directory with `config.jsonc` and `responses/`
+  (used by tests; the history page is always served from the project directory).
+- Config is parsed by `jsonc-parser`; trailing commas are allowed.
+- Schema violations are printed on startup as `Config warning: …`; the server still starts.
+- The schema accepts the short (string) form of broker rules and describes HTTP rule objects.
+- Requires Node.js 22+ (Docker image must use `node:22` or newer).
