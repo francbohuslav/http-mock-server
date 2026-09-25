@@ -15,12 +15,22 @@
           "delay": 10,
           "response": "withProcessor"
         },
+        "^/withAsyncProcessor$": "withAsyncProcessor",
+        "^/withFailingProcessor$": "withFailingProcessor",
         "": "text:unknown request"
       },
       "responses": {
         "withProcessor": {
           "content": "file:httpResponse.json",
           "responseProcessor": "upperCase"
+        },
+        "withAsyncProcessor": {
+          "content": "file:httpResponse.json",
+          "responseProcessor": "delayedUpperCase"
+        },
+        "withFailingProcessor": {
+          "content": "file:httpResponse.json",
+          "responseProcessor": "failing"
         }
       }
     }

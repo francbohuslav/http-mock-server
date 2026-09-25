@@ -113,6 +113,57 @@ describe("http", () => {
     });
   });
 
+  it("with async processor", async () => {
+    const incomingMessage: IIncomingMessage = {
+      url: "/withAsyncProcessor",
+      method: "GET",
+      headers: {},
+    };
+    const response = new TestingResponse();
+    const start = Date.now();
+    await listener.processRequest(incomingMessage, "", response);
+    expect(Date.now() - start).toBeGreaterThanOrEqual(90);
+    expect({ ...response }).toStrictEqual({
+      content: `{"SOME":"THING"}`,
+      headers: {
+        "Content-Type": "text/json",
+        Server: "HttpMockServer",
+      },
+    });
+  });
+
+  it("async processor does not block other requests", async () => {
+    const slowResponse = new TestingResponse();
+    const fastResponse = new TestingResponse();
+    const finished: string[] = [];
+    const slow = listener
+      .processRequest({ url: "/withAsyncProcessor", method: "GET", headers: {} }, "", slowResponse)
+      .then(() => finished.push("slow"));
+    const fast = listener
+      .processRequest({ url: "/test", method: "GET", headers: {} }, "", fastResponse)
+      .then(() => finished.push("fast"));
+    await Promise.all([slow, fast]);
+    expect(finished).toStrictEqual(["fast", "slow"]);
+  });
+
+  it("failing async processor returns 500", async () => {
+    const incomingMessage: IIncomingMessage = {
+      url: "/withFailingProcessor",
+      method: "GET",
+      headers: {},
+    };
+    const response = new TestingResponse();
+    await listener.processRequest(incomingMessage, "", response);
+    expect({ ...response }).toStrictEqual({
+      content: "Mock server error: processor failed",
+      headers: {
+        "Content-Type": "text/plain",
+        Server: "HttpMockServer",
+      },
+      statusCode: 500,
+    });
+  });
+
   it("status line with code only", async () => {
     const incomingMessage: IIncomingMessage = {
       url: "/statusOnly",

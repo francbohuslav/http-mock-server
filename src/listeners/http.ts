@@ -79,32 +79,26 @@ export class HttpListener extends Listener {
 
     response.setHeader("Server", "HttpMockServer");
     response.setHeader("Content-Type", "text/plain");
-    const requestDefConfig = this.getRequestDefConfig(request);
 
+    let requestDefConfig: IRequestDefConfig | undefined;
     let responseContent: IResponseContent;
-    if (this.responses.isExternalResponse(requestDefConfig)) {
-      responseContent = this.getResponseContentFromText(
-        `Response will be sent by ${requestDefConfig.response}`
+    try {
+      requestDefConfig = this.getRequestDefConfig(request);
+      responseContent = await this.buildResponseContent(
+        requestDefConfig,
+        requestObject
       );
-    } else {
-      if (!requestDefConfig.response.includes(":")) {
-        const responseConfigDef =
-          this.config.responses[requestDefConfig.response];
-        responseContent = this.getResponseContent(responseConfigDef.content);
-        if (responseConfigDef && responseConfigDef.responseProcessor) {
-          this.responses.runResponseProcessor(
-            responseConfigDef.responseProcessor,
-            requestObject,
-            responseContent
-          );
-        }
-      } else {
-        responseContent = this.getResponseContent(requestDefConfig.response);
-      }
-      if (requestDefConfig.delay) {
-        await delay(requestDefConfig.delay);
-      }
+    } catch (error) {
+      // Answers with 500 instead of leaving the client hanging and crashing the process on unhandled rejection
+      this.console.log(`Error while processing request ${request.url}`, error);
+      requestDefConfig = undefined;
+      responseContent = this.getResponseContentFromText(
+        `Mock server error: ${error instanceof Error ? error.message : error}`
+      );
+      responseContent.statusCode = 500;
+      responseContent.error = String(error);
     }
+    responseContent.time = new Date().toISOString();
 
     for (const header of Object.keys(responseContent.headers)) {
       response.setHeader(header, responseContent.headers[header]);
@@ -122,9 +116,53 @@ export class HttpListener extends Listener {
       responseContent
     );
     response.end(responseContent.body);
-    if (this.responses.isExternalResponse(requestDefConfig)) {
-      this.responses.sendResponse("http", requestDefConfig, memoryData);
+    const externalRequestDefConfig = requestDefConfig;
+    if (
+      externalRequestDefConfig &&
+      this.responses.isExternalResponse(externalRequestDefConfig)
+    ) {
+      this.responses
+        .sendResponse("http", externalRequestDefConfig, memoryData)
+        .catch((error) =>
+          this.console.log(
+            `Error while sending response ${externalRequestDefConfig.response}`,
+            error
+          )
+        );
     }
+  }
+
+  private async buildResponseContent(
+    requestDefConfig: IRequestDefConfig,
+    requestObject: IRequestContent
+  ): Promise<IResponseContent> {
+    if (this.responses.isExternalResponse(requestDefConfig)) {
+      return this.getResponseContentFromText(
+        `Response will be sent by ${requestDefConfig.response}`
+      );
+    }
+    let responseContent: IResponseContent;
+    if (!requestDefConfig.response.includes(":")) {
+      const responseConfigDef =
+        this.config.responses[requestDefConfig.response];
+      if (!responseConfigDef) {
+        throw new Error(`Unknown response "${requestDefConfig.response}"`);
+      }
+      responseContent = this.getResponseContent(responseConfigDef.content);
+      if (responseConfigDef.responseProcessor) {
+        await this.responses.runResponseProcessor(
+          responseConfigDef.responseProcessor,
+          requestObject,
+          responseContent
+        );
+      }
+    } else {
+      responseContent = this.getResponseContent(requestDefConfig.response);
+    }
+    if (requestDefConfig.delay) {
+      await delay(requestDefConfig.delay);
+    }
+    return responseContent;
   }
 
   private getRequestDefConfig(request: IIncomingMessage): IRequestDefConfig {

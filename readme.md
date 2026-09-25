@@ -184,6 +184,24 @@ function processor(requestContent, responseContent) {
 }
 ```
 
+A processor can be `async` (return a `Promise`). The mock waits for it before sending the response, without blocking
+other requests, so it can e.g. delay the response. The return value is ignored, modify `responseContent` instead.
+If the processor throws or rejects, HTTP listener answers with status `500`.
+
+Order against `delay` from request definition:
+
+- HTTP listener: processor runs first, then `delay` is applied
+- Kafka/AMQP listener: `delay` is applied first, then processor runs
+
+```js
+const responseProcessors = {
+  async delayedResponse(requestContent, responseContent) {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    responseContent.body = "x";
+  },
+};
+```
+
 `requestContent.url` is available for custom routing logic:
 
 - HTTP listener: original request URL (for example `/api/orders/123`)

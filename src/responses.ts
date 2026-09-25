@@ -65,10 +65,14 @@ export class Responses {
     const mbListenConfig = (config.listeners.kafka && config.listeners.kafka[targetName]) || (config.listeners.amqp && config.listeners.amqp[targetName]);
     const responseConfigDef = mbListenConfig.responses[responseName];
 
-    const responseContent = this.getResponseContent(responseConfigDef.content);
-    if (responseConfigDef && responseConfigDef.responseProcessor) {
-      this.runResponseProcessor(responseConfigDef.responseProcessor, memoryData.request, responseContent);
+    if (!responseConfigDef) {
+      throw new Error(`Unknown response "${responseName}" for listener ${targetName}`);
     }
+    const responseContent = this.getResponseContent(responseConfigDef.content);
+    if (responseConfigDef.responseProcessor) {
+      await this.runResponseProcessor(responseConfigDef.responseProcessor, memoryData.request, responseContent);
+    }
+    responseContent.time = new Date().toISOString();
     memoryData.response = responseContent;
 
     await this.listeners[targetName].sendResponse(responseConfigDef, responseContent);
@@ -128,13 +132,16 @@ export class Responses {
     };
   }
 
-  public runResponseProcessor(responseProcessor: string, requestContent: IRequestContent, responseContent: IResponseContent) {
+  /**
+   * Runs the processor and waits for it when it returns a Promise. The return value is ignored, the processor mutates responseContent.
+   */
+  public async runResponseProcessor(responseProcessor: string, requestContent: IRequestContent, responseContent: IResponseContent): Promise<void> {
     if (!responseProcessor) {
       throw new Error("ResponseProcessor is empty");
     }
     if (!this.responseProcessors[responseProcessor]) {
       throw new Error(`ResponseProcessor ${responseProcessor} is not in function(requestContent, responseContent) in file processors.js.`);
     }
-    return this.responseProcessors[responseProcessor](requestContent, responseContent);
+    await this.responseProcessors[responseProcessor](requestContent, responseContent);
   }
 }
