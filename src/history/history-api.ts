@@ -1,6 +1,6 @@
-import { readFileSync } from "fs";
-import { IncomingMessage, ServerResponse } from "http";
-import { HistoryEntry, HistoryStore } from "./history-store";
+import { readFileSync } from "node:fs";
+import type { IncomingMessage, ServerResponse } from "node:http";
+import type { HistoryEntry, HistoryStore } from "./history-store";
 
 /**
  * JSON shape of one history record. It is a public contract used by clients and request-history.html.
@@ -33,7 +33,7 @@ export class HistoryApi {
       response.setHeader("Server", "HttpMockServer");
       if (url.startsWith(GET_ALL_PREFIX)) {
         this.sendJson(response, this.allToJson());
-      } else if (url.startsWith(GET_LAST_PREFIX + "/")) {
+      } else if (url.startsWith(`${GET_LAST_PREFIX}/`)) {
         // The endpoint keeps its leading slash: /get-last-request/test → /test
         const entry = this.history.last(url.substring(GET_LAST_PREFIX.length));
         this.sendJson(response, entry && toJson(entry));

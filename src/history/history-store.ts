@@ -1,4 +1,4 @@
-import { InboundMessage, ListenerType, OutboundMessage } from "../messages";
+import type { InboundMessage, ListenerType, OutboundMessage } from "../messages";
 
 export interface HistoryEntry {
   listenerType: ListenerType;

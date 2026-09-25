@@ -1,4 +1,4 @@
-import { BrokerListener } from "./broker-listener";
+import type { BrokerListener } from "./broker-listener";
 
 /**
  * Running broker listeners by name. Names are unique across Kafka and AMQP.

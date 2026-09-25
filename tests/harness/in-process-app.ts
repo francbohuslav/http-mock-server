@@ -1,8 +1,8 @@
-import fs from "fs";
-import os from "os";
-import path from "path";
-import { MockServerApp, StartedPorts } from "../../src/app";
-import { Logger } from "../../src/shared/logger";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { MockServerApp, type StartedPorts } from "../../src/app";
+import type { Logger } from "../../src/shared/logger";
 import { FakeBrokerNetwork } from "./fake-broker-client";
 import { copyDirectory, sendRequest } from "./mock-server-process";
 

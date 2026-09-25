@@ -1,5 +1,5 @@
-import { Channel, ChannelModel, connect, Options } from "amqplib";
-import { BrokerClient, BrokerMessage, BrokerMessageHandler } from "./broker-client";
+import { type Channel, type ChannelModel, connect, type Options } from "amqplib";
+import type { BrokerClient, BrokerMessage, BrokerMessageHandler } from "./broker-client";
 
 export class AmqpClient implements BrokerClient {
   private connection?: ChannelModel;

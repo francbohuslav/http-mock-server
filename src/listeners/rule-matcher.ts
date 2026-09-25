@@ -1,5 +1,5 @@
-import { normalizeRule, Rule } from "../config/normalize";
-import { RawRule } from "../config/raw-config";
+import { normalizeRule, type Rule } from "../config/normalize";
+import type { RawRule } from "../config/raw-config";
 
 /**
  * Returns the first rule (in key order) whose regex matches the URL. The key "" matches everything.

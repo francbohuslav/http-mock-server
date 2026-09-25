@@ -1,4 +1,4 @@
-import { InboundMessage, OutboundMessage } from "../messages";
+import type { InboundMessage, OutboundMessage } from "../messages";
 
 /**
  * Function exported from responses/processors.js. It mutates `responseContent`; the return value is ignored.

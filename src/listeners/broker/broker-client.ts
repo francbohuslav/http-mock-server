@@ -1,4 +1,4 @@
-import { RawBrokerListenerConfig } from "../../config/raw-config";
+import type { RawBrokerListenerConfig } from "../../config/raw-config";
 
 export type BrokerType = "kafka" | "amqp";
 

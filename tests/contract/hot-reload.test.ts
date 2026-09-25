@@ -15,7 +15,7 @@ describe("hot reload", () => {
   it("re-reads HTTP rules on every request", async () => {
     expect((await server.http("/text")).body).toBe("plain text");
     const config = createHttpConfig();
-    (config.listeners.http?.requests as Record<string, unknown>)["^/text$"] = "text:changed text";
+    (config.listeners.http as Record<string, any>).requests["^/text$"] = "text:changed text";
     server.writeConfig(config);
     expect((await server.http("/text")).body).toBe("changed text");
   });
@@ -30,7 +30,7 @@ describe("hot reload", () => {
   it("re-reads HTTP templates on every request", async () => {
     expect((await server.http("/textTemplate")).body).toBe("template text");
     const config = createHttpConfig();
-    (config.listeners.http?.responses as Record<string, any>).textTemplate.content = "text:changed template";
+    (config.listeners.http as Record<string, any>).responses.textTemplate.content = "text:changed template";
     server.writeConfig(config);
     expect((await server.http("/textTemplate")).body).toBe("changed template");
   });

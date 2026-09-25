@@ -1,12 +1,12 @@
-import http from "http";
-import { AddressInfo } from "net";
-import path from "path";
+import http from "node:http";
+import type { AddressInfo } from "node:net";
+import path from "node:path";
 import { ConfigProvider } from "./config/config-provider";
-import { RawBrokerListenerConfig } from "./config/raw-config";
+import type { RawBrokerListenerConfig } from "./config/raw-config";
 import { HistoryApi } from "./history/history-api";
 import { HistoryStore } from "./history/history-store";
 import { AmqpClient } from "./listeners/broker/amqp-client";
-import { BrokerClientFactory, BrokerType } from "./listeners/broker/broker-client";
+import type { BrokerClientFactory, BrokerType } from "./listeners/broker/broker-client";
 import { BrokerListener } from "./listeners/broker/broker-listener";
 import { BrokerRegistry } from "./listeners/broker/broker-registry";
 import { BrokerReplyDispatcher } from "./listeners/broker/broker-reply-dispatcher";
@@ -15,7 +15,7 @@ import { HttpListener } from "./listeners/http-listener";
 import { PayloadLoader } from "./replies/payload-loader";
 import { ProcessorRegistry } from "./replies/processor-registry";
 import { ReplyBuilder } from "./replies/reply-builder";
-import { Logger } from "./shared/logger";
+import type { Logger } from "./shared/logger";
 
 export interface AppOptions {
   /** Directory with config.jsonc and responses/. */

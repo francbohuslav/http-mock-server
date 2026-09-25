@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import { MockServerApp } from "./app";
 
 const projectDir = path.join(__dirname, "..");

@@ -1,4 +1,4 @@
-import { OutboundMessage } from "../../src/messages";
+import type { OutboundMessage } from "../../src/messages";
 import { ProcessorRegistry } from "../../src/replies/processor-registry";
 
 const inbound = { time: "t", url: "/a", headers: {}, body: "in" };
@@ -8,7 +8,7 @@ describe("ProcessorRegistry", () => {
   it("runs sync and async processors", async () => {
     const registry = new ProcessorRegistry({
       sync: (request, response) => {
-        response.body = request.body + "-sync";
+        response.body = `${request.body}-sync`;
       },
       async: async (_request, response) => {
         await new Promise((resolve) => setTimeout(resolve, 5));

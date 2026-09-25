@@ -40,7 +40,7 @@ describe("HTTP replies", () => {
     expect(result.status).toBe(200);
     expect(result.body).toBe("plain text");
     expect(result.headers["content-type"]).toBe("text/plain");
-    expect(result.headers["server"]).toBe("HttpMockServer");
+    expect(result.headers.server).toBe("HttpMockServer");
   });
 
   it("returns a response file with its headers", async () => {
@@ -48,7 +48,7 @@ describe("HTTP replies", () => {
     expect(result.status).toBe(200);
     expect(result.body).toBe(`{"some":"thing"}`);
     expect(result.headers["content-type"]).toBe("text/json");
-    expect(result.headers["server"]).toBe("HttpMockServer");
+    expect(result.headers.server).toBe("HttpMockServer");
   });
 
   it("keeps the default text/plain content type when the file does not define it", async () => {

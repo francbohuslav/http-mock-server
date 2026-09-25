@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import { InProcessApp, waitFor } from "../harness/in-process-app";
 
 const FIXTURE_DIR = path.join(__dirname, "fixture");

@@ -34,7 +34,7 @@ describe("startup", () => {
 describe("errors", () => {
   it("answers 500 when no rule matches", async () => {
     const config = createHttpConfig();
-    delete (config.listeners.http?.requests as Record<string, unknown>)[""];
+    delete (config.listeners.http as Record<string, any>).requests[""];
     server = await MockServerProcess.start(config, FIXTURE_DIR);
     const result = await server.http("/not/configured");
     expect(result.status).toBe(500);
@@ -57,8 +57,8 @@ describe("errors", () => {
     server = await MockServerProcess.start(createHttpConfig(), FIXTURE_DIR);
     const result = await server.http("/withProcessor");
     expect(result.status).toBe(200);
-    expect(result.headers["someheader"]).toBeUndefined();
-    expect(result.headers["requesturl"]).toBe("/withProcessor");
+    expect(result.headers.someheader).toBeUndefined();
+    expect(result.headers.requesturl).toBe("/withProcessor");
   });
 
   // Q17: an invalid header value set by a processor used to crash the process
@@ -76,7 +76,7 @@ describe("errors", () => {
     server = await MockServerProcess.start(createHttpConfig(), FIXTURE_DIR);
     const result = await server.http("/urlHeader");
     expect(result.status).toBe(200);
-    expect(result.headers["location"]).toBe("http://example.com:8080/path");
+    expect(result.headers.location).toBe("http://example.com:8080/path");
     expect(result.body).toBe("redirect\n");
   });
 });

@@ -1,5 +1,5 @@
-import { RawBrokerListenerConfig } from "../../src/config/raw-config";
-import { BrokerClient, BrokerClientFactory, BrokerMessage, BrokerMessageHandler, BrokerType } from "../../src/listeners/broker/broker-client";
+import type { RawBrokerListenerConfig } from "../../src/config/raw-config";
+import type { BrokerClient, BrokerClientFactory, BrokerMessage, BrokerMessageHandler, BrokerType } from "../../src/listeners/broker/broker-client";
 
 export interface PublishedMessage extends BrokerMessage {
   topic: string;

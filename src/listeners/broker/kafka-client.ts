@@ -1,5 +1,5 @@
-import { Consumer, IHeaders, Kafka, logLevel, Partitioners, PartitionAssigners, Producer } from "kafkajs";
-import { BrokerClient, BrokerMessage, BrokerMessageHandler } from "./broker-client";
+import { type Consumer, type IHeaders, Kafka, logLevel, Partitioners, PartitionAssigners, type Producer } from "kafkajs";
+import type { BrokerClient, BrokerMessage, BrokerMessageHandler } from "./broker-client";
 
 export class KafkaClient implements BrokerClient {
   private readonly kafka: Kafka;
@@ -13,7 +13,7 @@ export class KafkaClient implements BrokerClient {
   public async connect(): Promise<void> {
     this.producer = this.kafka.producer({ createPartitioner: Partitioners.LegacyPartitioner });
     // A new consumer group on every start, so only messages produced after the start are received
-    this.consumer = this.kafka.consumer({ groupId: "group_id.mockserver" + Date.now(), partitionAssigners: [PartitionAssigners.roundRobin] });
+    this.consumer = this.kafka.consumer({ groupId: `group_id.mockserver${Date.now()}`, partitionAssigners: [PartitionAssigners.roundRobin] });
     await this.producer.connect();
     await this.consumer.connect();
   }

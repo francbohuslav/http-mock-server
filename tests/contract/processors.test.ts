@@ -16,8 +16,8 @@ describe("response processors", () => {
     const result = await server.http("/withProcessor", { headers: { someHeader: "willBePassedToResponse" } });
     expect(result.body).toBe(`{"SOME":"THING"}`);
     expect(result.headers["content-type"]).toBe("text/json");
-    expect(result.headers["someheader"]).toBe("willBePassedToResponse");
-    expect(result.headers["requesturl"]).toBe("/withProcessor");
+    expect(result.headers.someheader).toBe("willBePassedToResponse");
+    expect(result.headers.requesturl).toBe("/withProcessor");
   });
 
   it("receives url, headers, body and time of the request", async () => {

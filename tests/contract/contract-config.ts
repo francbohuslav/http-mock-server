@@ -1,5 +1,5 @@
-import path from "path";
-import { MockServerConfig } from "../harness/mock-server-process";
+import path from "node:path";
+import type { MockServerConfig } from "../harness/mock-server-process";
 
 export const FIXTURE_DIR = path.join(__dirname, "fixture");
 

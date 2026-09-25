@@ -1,7 +1,7 @@
-import { PayloadSource } from "../config/normalize";
-import { InboundMessage, OutboundMessage } from "../messages";
-import { PayloadLoader } from "./payload-loader";
-import { ProcessorRegistry } from "./processor-registry";
+import type { PayloadSource } from "../config/normalize";
+import type { InboundMessage, OutboundMessage } from "../messages";
+import type { PayloadLoader } from "./payload-loader";
+import type { ProcessorRegistry } from "./processor-registry";
 
 /**
  * Builds an outbound message from a payload source and an optional processor.

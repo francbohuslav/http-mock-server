@@ -1,10 +1,10 @@
-import { ConfigProvider } from "../../config/config-provider";
-import { formatReplyRef, normalizeTemplate, ReplyRef } from "../../config/normalize";
-import { HistoryEntry } from "../../history/history-store";
+import type { ConfigProvider } from "../../config/config-provider";
+import { formatReplyRef, normalizeTemplate, type ReplyRef } from "../../config/normalize";
+import type { HistoryEntry } from "../../history/history-store";
 import { now } from "../../messages";
-import { ReplyBuilder } from "../../replies/reply-builder";
+import type { ReplyBuilder } from "../../replies/reply-builder";
 import { delay } from "../../shared/delay";
-import { BrokerRegistry } from "./broker-registry";
+import type { BrokerRegistry } from "./broker-registry";
 
 /**
  * Sends a reply through a broker listener: for broker rules and for HTTP rules referencing `<listener>:<template>`.

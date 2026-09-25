@@ -1,4 +1,4 @@
-import { RawReplyTemplate, RawRule } from "./raw-config";
+import type { RawReplyTemplate, RawRule } from "./raw-config";
 
 /**
  * Where the headers, status and body of a reply come from.

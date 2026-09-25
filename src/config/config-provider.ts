@@ -1,8 +1,8 @@
 import Ajv from "ajv";
-import { readFileSync } from "fs";
-import { parse, ParseError, printParseErrorCode } from "jsonc-parser";
+import { readFileSync } from "node:fs";
+import { parse, type ParseError, printParseErrorCode } from "jsonc-parser";
 import schema from "../config.schema.json";
-import { RawConfig } from "./raw-config";
+import type { RawConfig } from "./raw-config";
 
 /**
  * Reads config.jsonc. The file is read again on every `load()` so that rules and templates can be edited without restart.

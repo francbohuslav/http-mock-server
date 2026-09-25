@@ -1,14 +1,14 @@
-import http, { IncomingMessage, OutgoingMessage, ServerResponse } from "http";
-import { AddressInfo } from "net";
-import { ConfigProvider } from "../config/config-provider";
-import { formatReplyRef, normalizeTemplate, Rule } from "../config/normalize";
-import { RawHttpListenerConfig } from "../config/raw-config";
-import { HistoryEntry, HistoryStore } from "../history/history-store";
-import { InboundMessage, now, OutboundMessage } from "../messages";
-import { ReplyBuilder } from "../replies/reply-builder";
+import http, { type IncomingMessage, type OutgoingMessage, type ServerResponse } from "node:http";
+import type { AddressInfo } from "node:net";
+import type { ConfigProvider } from "../config/config-provider";
+import { formatReplyRef, normalizeTemplate, type Rule } from "../config/normalize";
+import type { RawHttpListenerConfig } from "../config/raw-config";
+import type { HistoryEntry, HistoryStore } from "../history/history-store";
+import { type InboundMessage, now, type OutboundMessage } from "../messages";
+import type { ReplyBuilder } from "../replies/reply-builder";
 import { delay } from "../shared/delay";
-import { errorMessage, Logger, logMessage } from "../shared/logger";
-import { BrokerReplyDispatcher } from "./broker/broker-reply-dispatcher";
+import { errorMessage, type Logger, logMessage } from "../shared/logger";
+import type { BrokerReplyDispatcher } from "./broker/broker-reply-dispatcher";
 import { matchRule } from "./rule-matcher";
 
 /**

@@ -1,10 +1,10 @@
 import { normalizeRule } from "../../config/normalize";
-import { RawBrokerListenerConfig } from "../../config/raw-config";
-import { HistoryStore } from "../../history/history-store";
-import { InboundMessage, now, OutboundMessage } from "../../messages";
-import { Logger, logMessage } from "../../shared/logger";
-import { BrokerClient, BrokerMessage, BrokerType } from "./broker-client";
-import { BrokerReplyDispatcher } from "./broker-reply-dispatcher";
+import type { RawBrokerListenerConfig } from "../../config/raw-config";
+import type { HistoryStore } from "../../history/history-store";
+import { type InboundMessage, now, type OutboundMessage } from "../../messages";
+import { type Logger, logMessage } from "../../shared/logger";
+import type { BrokerClient, BrokerMessage, BrokerType } from "./broker-client";
+import type { BrokerReplyDispatcher } from "./broker-reply-dispatcher";
 
 /**
  * One configured Kafka or AMQP endpoint: records incoming messages and dispatches configured replies.
@@ -43,7 +43,7 @@ export class BrokerListener {
     try {
       logMessage(this.logger, `Received ${this.type} request in ${topic} topic`, message.headers, message.body);
       const inbound: InboundMessage = { time: now(), url: topic, headers: message.headers, body: message.body };
-      const entry = this.history.record(this.type, "/" + topic, inbound, null);
+      const entry = this.history.record(this.type, `/${topic}`, inbound, null);
       const rawRule = this.config.requests?.[topic];
       if (rawRule === undefined) {
         return;

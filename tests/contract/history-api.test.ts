@@ -61,7 +61,7 @@ describe("History API", () => {
     await server.http("/text", { method: "POST", body: "second" });
     const result = await server.api("/get-last-request/text");
     expect(result.headers["content-type"]).toBe("application/json");
-    expect(result.headers["server"]).toBe("HttpMockServer");
+    expect(result.headers.server).toBe("HttpMockServer");
     expect(JSON.parse(result.body).request.body).toBe("second");
     expect((await server.apiJson("/get-all-requests/"))["/text"]).toHaveLength(2);
   });
