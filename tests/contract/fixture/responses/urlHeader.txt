@@ -1,0 +1,4 @@
+Content-Type: text/plain
+Location: http://example.com:8080/path
+
+redirect

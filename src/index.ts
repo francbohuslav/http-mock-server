@@ -11,9 +11,10 @@ import { KafkaListener } from "./listeners/kafka";
 import Memory from "./memory";
 import { Responses } from "./responses";
 
-const responsesDirectory = path.join(__dirname, "..", "responses");
+const rootDirectory = process.env.HTTP_MOCK_SERVER_ROOT || path.join(__dirname, "..");
+const responsesDirectory = path.join(rootDirectory, "responses");
 
-const configer = new Configer(path.join(__dirname, "..", "config.jsonc"));
+const configer = new Configer(path.join(rootDirectory, "config.jsonc"));
 const config: IConfig = configer.loadConfig();
 const responseProcessors = require(path.join(responsesDirectory, "processors.js"));
 const requestHistoryGuiPath = path.join(__dirname, "..", "request-history.html");

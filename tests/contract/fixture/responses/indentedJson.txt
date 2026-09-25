@@ -1,0 +1,7 @@
+Content-Type: application/json
+
+{
+  "nested": {
+    "value": 1
+  }
+}

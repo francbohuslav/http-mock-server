@@ -167,7 +167,7 @@ body…
   - `200`
 - A first line without `:` that is not a valid status line, or any later line without `:`, is logged as
   `Line <line> is not valid header` and ignored.
-- Header lines are split on the **last** `:`; name and value are trimmed.
+- Header lines are split on the **last** `:` (defect Q15 – a value such as `Location: http://host:8080/x` produces an invalid header name and crashes the process); name and value are trimmed.
 - A file that consists of just a status line and a trailing newline (for example `serverError500.txt`) is valid: it
   has an empty body.
 
@@ -303,3 +303,4 @@ reply is sent.
 | Q12 | Broker listeners log via the global `console` instead of the injected one                                | **fix**                                                     |
 | Q13 | Misleading processor error message, typo `getQueueSettins`                                               | **fix**                                                     |
 | Q14 | `apiPort`/`port` typed as `string` in TS but `integer` in the schema; config never validated              | **fix** – validate on startup, report violations as warnings only (old configs keep working) |
+| Q15 | Header lines are split on the last `:`; a header value containing `:` (URL) yields an invalid header name → unhandled exception crashes the process | **fix** – split on the first `:` |
