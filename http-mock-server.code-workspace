@@ -2,15 +2,15 @@
   "folders": [
     {
       "name": "📝 Source",
-      "path": ".",
+      "path": "."
     },
     {
       "name": "🐋 Docker",
-      "path": "../docker",
-    },
+      "path": "../docker"
+    }
   ],
   "extensions": {
-    "recommendations": ["biomejs.biome"],
+    "recommendations": ["biomejs.biome"]
   },
   "settings": {
     "files.exclude": {
@@ -19,13 +19,13 @@
       "**/.hg": true,
       "**/CVS": true,
       "**/.DS_Store": true,
-      "dist": true,
+      "dist": true
     },
     "git.enabled": true,
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "always",
+      "source.organizeImports": "always"
     },
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "biomejs.biome",
-  },
+    "editor.defaultFormatter": "biomejs.biome"
+  }
 }

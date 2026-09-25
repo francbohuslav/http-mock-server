@@ -17,9 +17,7 @@ const STATUS_LINE = /^(?:HTTP(?:\/\S+)?\s+)?(\d+)(?:\s+(.+))?$/;
  */
 export function parsePayloadFile(text: string, onWarning: (message: string) => void): ParsedPayloadFile {
   const BYTE_ORDER_MARK = 0xfeff;
-  const lines = (text.charCodeAt(0) === BYTE_ORDER_MARK ? text.substring(1) : text)
-    .split("\n")
-    .map((line) => line.replace(/\r$/, ""));
+  const lines = (text.charCodeAt(0) === BYTE_ORDER_MARK ? text.substring(1) : text).split("\n").map((line) => line.replace(/\r$/, ""));
   const separatorIndex = lines.findIndex((line) => line.trim() === "");
   if (separatorIndex === -1) {
     throw new Error("Response file must contain headers, an empty line and a body");

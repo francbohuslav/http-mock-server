@@ -6,11 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": [
-      "**",
-      "!!**/dist",
-      "!request-history.html"
-    ]
+    "includes": ["**", "!!**/dist", "!request-history.html"]
   },
   "formatter": {
     "enabled": true,

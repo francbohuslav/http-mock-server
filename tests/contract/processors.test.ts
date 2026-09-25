@@ -52,10 +52,7 @@ describe("response processors", () => {
 
   it("does not block other requests while an async processor runs", async () => {
     const finished: string[] = [];
-    await Promise.all([
-      server.http("/withAsyncProcessor").then(() => finished.push("slow")),
-      server.http("/file").then(() => finished.push("fast")),
-    ]);
+    await Promise.all([server.http("/withAsyncProcessor").then(() => finished.push("slow")), server.http("/file").then(() => finished.push("fast"))]);
     expect(finished).toStrictEqual(["fast", "slow"]);
   });
 
