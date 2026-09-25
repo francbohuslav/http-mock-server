@@ -1,7 +1,7 @@
 {
   "name": "http-mock-server",
-  "version": "1.0.13",
-  "description": "Mock server for HTTP and Kafka",
+  "version": "1.1.0",
+  "description": "Mock server for HTTP, Kafka and AMQP",
   "main": "dist/index.js",
   "scripts": {
     "start": "node ./dist/index.js",

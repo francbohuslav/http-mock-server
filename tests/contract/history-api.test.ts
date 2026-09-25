@@ -92,10 +92,13 @@ describe("History API", () => {
     expect(result.body).toContain("<title>Request History</title>");
   });
 
-  // Q4: the "return everything" branch for an empty endpoint was unreachable
-  it.failing("returns the whole history for an empty endpoint", async () => {
+  // Q4: /get-last-request/ addresses the root endpoint "/" (the old "return everything" branch was unreachable)
+  it("returns the last request of the root endpoint for an empty endpoint", async () => {
     await server.http("/text");
-    const history = await server.apiJson("/get-last-request/");
-    expect(Object.keys(history)).toStrictEqual(["/text"]);
+    expect((await server.api("/get-last-request/")).body).toBe("");
+    await server.http("/");
+    const entry = await server.apiJson("/get-last-request/");
+    expect(entry.endpoint).toBe("/");
+    expect(entry.response.body).toBe("unknown request");
   });
 });

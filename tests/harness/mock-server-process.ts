@@ -185,7 +185,7 @@ function isPortOpen(port: number): Promise<boolean> {
   });
 }
 
-function copyDirectory(source: string, target: string): void {
+export function copyDirectory(source: string, target: string): void {
   fs.mkdirSync(target, { recursive: true });
   for (const entry of fs.readdirSync(source, { withFileTypes: true })) {
     const sourcePath = path.join(source, entry.name);

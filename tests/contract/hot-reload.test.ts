@@ -27,7 +27,7 @@ describe("hot reload", () => {
   });
 
   // Q5: HTTP templates were taken from the startup config only
-  it.failing("re-reads HTTP templates on every request", async () => {
+  it("re-reads HTTP templates on every request", async () => {
     expect((await server.http("/textTemplate")).body).toBe("template text");
     const config = createHttpConfig();
     (config.listeners.http?.responses as Record<string, any>).textTemplate.content = "text:changed template";

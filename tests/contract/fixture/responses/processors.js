@@ -20,6 +20,10 @@ module.exports = {
     responseContent.statusMessage = "I'm a teapot";
   },
 
+  invalidHeader(_requestContent, responseContent) {
+    responseContent.headers["X-Bad"] = "line\nbreak";
+  },
+
   async delayedUpperCase(_requestContent, responseContent) {
     await new Promise((resolve) => setTimeout(resolve, 200));
     responseContent.body = responseContent.body.toUpperCase();

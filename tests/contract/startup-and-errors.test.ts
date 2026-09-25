@@ -44,7 +44,7 @@ describe("errors", () => {
   });
 
   // Q1: a response file without the empty separator line used to call process.exit(1)
-  it.failing("answers 500 for a response file without an empty line and keeps running", async () => {
+  it("answers 500 for a response file without an empty line and keeps running", async () => {
     server = await MockServerProcess.start(createHttpConfig(), FIXTURE_DIR);
     const result = await server.http("/noSeparator");
     expect(result.status).toBe(500);
@@ -52,9 +52,27 @@ describe("errors", () => {
     expect(server.isRunning).toBe(true);
   });
 
+  // Q17: a header set to undefined by a processor used to crash the process
+  it("skips headers set to undefined by a processor", async () => {
+    server = await MockServerProcess.start(createHttpConfig(), FIXTURE_DIR);
+    const result = await server.http("/withProcessor");
+    expect(result.status).toBe(200);
+    expect(result.headers["someheader"]).toBeUndefined();
+    expect(result.headers["requesturl"]).toBe("/withProcessor");
+  });
+
+  // Q17: an invalid header value set by a processor used to crash the process
+  it("answers 500 for an invalid header value set by a processor", async () => {
+    server = await MockServerProcess.start(createHttpConfig(), FIXTURE_DIR);
+    const result = await server.http("/invalidProcessorHeader");
+    expect(result.status).toBe(500);
+    expect(result.body).toMatch(/^Mock server error: .*X-Bad/);
+    expect((await server.http("/text")).body).toBe("plain text");
+  });
+
   // Q15: headers were split on the last colon, so "Location: http://host:8080" produced an invalid header name
   // and crashed the process
-  it.failing("splits a header line on the first colon", async () => {
+  it("splits a header line on the first colon", async () => {
     server = await MockServerProcess.start(createHttpConfig(), FIXTURE_DIR);
     const result = await server.http("/urlHeader");
     expect(result.status).toBe(200);

@@ -64,7 +64,7 @@ describe("response file format", () => {
   });
 
   // Q6: body lines used to be trimmed which destroyed indentation
-  it.failing("preserves indentation of the body", async () => {
+  it("preserves indentation of the body", async () => {
     const result = await server.http("/indentedJson");
     expect(result.body).toBe(`{\n  "nested": {\n    "value": 1\n  }\n}\n`);
   });

@@ -3,15 +3,21 @@
     "module": "node16",
     "moduleResolution": "node16",
     "target": "es2022",
-    "lib": ["es2023"],
+    "lib": [
+      "es2023"
+    ],
     "esModuleInterop": true,
-    "strict": false,
     "isolatedModules": true,
-    "noImplicitAny": true,
     "sourceMap": true,
     "outDir": "dist",
     "rootDir": "src",
-    "types": ["node"]
+    "types": [
+      "node"
+    ],
+    "strict": true,
+    "resolveJsonModule": true
   },
-  "include": ["./src/**/*"]
+  "include": [
+    "./src/**/*"
+  ]
 }
