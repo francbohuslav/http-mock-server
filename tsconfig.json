@@ -1,18 +1,17 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "target": "es6",
-        "noImplicitAny": true,
-        "moduleResolution": "node",
-        "sourceMap": true,
-        "outDir": "dist",
-        "baseUrl": ".",
-        "paths": {
-            "*": ["node_modules/*"]
-        },
-        "types": ["jest"]
-    },
-    "include": ["./src/**/*"],
-    "exclude": ["./tests/*.test.ts"]
+  "compilerOptions": {
+    "module": "node16",
+    "moduleResolution": "node16",
+    "target": "es2022",
+    "lib": ["es2023"],
+    "esModuleInterop": true,
+    "strict": false,
+    "isolatedModules": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node"]
+  },
+  "include": ["./src/**/*"]
 }

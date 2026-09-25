@@ -64,7 +64,7 @@ function apiRequestListener(request: IncomingMessage, response: OutgoingMessage)
   let requestBody = "";
   request.on("data", (chunk) => (requestBody += chunk));
   request.on("end", () => {
-    let output = null;
+    let output;
     if (request.url.startsWith("/get-all-requests/")) {
       output = memory.getAllRequests();
     } else if (request.url.startsWith("/get-last-request/")) {
