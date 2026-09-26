@@ -92,6 +92,12 @@ describe("History API", () => {
     expect(result.body).toContain("<title>Request History</title>");
   });
 
+  it("serves a history web page without external resources", async () => {
+    const result = await server.api("/");
+    expect(result.body).not.toMatch(/<(script|link|img)[^>]+(src|href)=/i);
+    expect(result.body).not.toMatch(/https?:\/\//);
+  });
+
   // /get-last-request/ addresses the root endpoint "/" (the old "return everything" branch was unreachable)
   it("returns the last request of the root endpoint for an empty endpoint", async () => {
     await server.http("/text");

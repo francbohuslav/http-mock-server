@@ -17,7 +17,7 @@ It captures incoming requests/messages, stores history in memory, and returns co
 - Kafka and AMQP listeners with configurable response flow
 - Delayed responses (`delay` in milliseconds)
 - Custom response processors (`responses/processors.js`)
-- In-memory API to inspect request/response history
+- In-memory API to inspect request/response history and a history web page (self-contained, works offline)
 - JSONC configuration with schema (`src/config.schema.json`)
 
 ## Requirements

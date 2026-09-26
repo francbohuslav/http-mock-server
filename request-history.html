@@ -4,262 +4,532 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Request History</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react@18/umd/react.production.min.js"
-    ></script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
-    ></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Self-contained page without external resources, so it works offline and in intranets -->
     <style>
-      pre {
-        overflow-x: hidden !important;
-        white-space: pre-wrap !important;
-        overflow-wrap: anywhere !important;
-        word-break: break-all !important;
+      :root {
+        --bg: #f1f5f9;
+        --panel: #ffffff;
+        --border: #e2e8f0;
+        --border-soft: #f1f5f9;
+        --text: #0f172a;
+        --muted: #64748b;
+        --head: #f1f5f9;
+        --hover: #f8fafc;
+        --code-bg: #f8fafc;
+        --request: #0284c7;
+        --request-hover: #0369a1;
+        --response: #059669;
+        --response-hover: #047857;
+        --danger: #e11d48;
+        --danger-hover: #be123c;
+        --neutral: #e2e8f0;
+        --neutral-hover: #cbd5e1;
+        --apply: #4f46e5;
+        --apply-hover: #4338ca;
+        --revert: #d97706;
+        --revert-hover: #b45309;
+        --badge-bg: #fef3c7;
+        --badge-text: #92400e;
+        --error-bg: #fef2f2;
+        --error-border: #fecaca;
+        --error-text: #b91c1c;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a;
+          --panel: #1e293b;
+          --border: #334155;
+          --border-soft: #273449;
+          --text: #e2e8f0;
+          --muted: #94a3b8;
+          --head: #273449;
+          --hover: #243248;
+          --code-bg: #0f172a;
+          --neutral: #334155;
+          --neutral-hover: #475569;
+          --badge-bg: #78350f;
+          --badge-text: #fde68a;
+          --error-bg: #450a0a;
+          --error-border: #7f1d1d;
+          --error-text: #fecaca;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      main {
+        max-width: 72rem;
+        margin: 0 auto;
+        padding: 1.5rem 1rem;
+      }
+
+      h1 {
+        margin: 0 0 0.5rem;
+        font-size: 1.5rem;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+      }
+
+      .toolbar p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      button {
+        border: 0;
+        border-radius: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        font: inherit;
+        font-size: 0.875rem;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+
+      .btn-request {
+        background: var(--request);
+      }
+      .btn-request:hover {
+        background: var(--request-hover);
+      }
+      .btn-response {
+        background: var(--response);
+      }
+      .btn-response:hover {
+        background: var(--response-hover);
+      }
+      .btn-danger {
+        background: var(--danger);
+      }
+      .btn-danger:hover:not(:disabled) {
+        background: var(--danger-hover);
+      }
+      .btn-neutral {
+        background: var(--neutral);
+        color: var(--text);
+      }
+      .btn-neutral:hover {
+        background: var(--neutral-hover);
+      }
+      .btn-apply {
+        background: var(--apply);
+      }
+      .btn-apply:hover {
+        background: var(--apply-hover);
+      }
+      .btn-revert {
+        background: var(--revert);
+      }
+      .btn-revert:hover {
+        background: var(--revert-hover);
+      }
+
+      .message {
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 0.375rem;
+        background: var(--panel);
+        color: var(--muted);
+      }
+
+      .message.error {
+        background: var(--error-bg);
+        border-color: var(--error-border);
+        color: var(--error-text);
+      }
+
+      .endpoints {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .endpoint {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        overflow: hidden;
+      }
+
+      .endpoint-toggle {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0;
+        background: transparent;
+        color: var(--text);
+        font-size: 1rem;
+        text-align: left;
+      }
+
+      .endpoint-toggle:hover {
+        background: var(--hover);
+      }
+
+      .endpoint-name {
+        font-weight: 500;
+        overflow-wrap: anywhere;
+      }
+
+      .endpoint-count {
+        flex-shrink: 0;
+        color: var(--muted);
+        font-size: 0.875rem;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        border-top: 1px solid var(--border);
+      }
+
+      table {
+        width: 100%;
+        min-width: 36rem;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 0.875rem;
+      }
+
+      /* Same column widths in all endpoint tables */
+      th:nth-child(1) {
+        width: 30%;
+      }
+      th:nth-child(2) {
+        width: 14%;
+      }
+
+      th {
+        background: var(--head);
+        text-align: left;
+        font-weight: 600;
+      }
+
+      th,
+      td {
+        padding: 0.5rem 1rem;
+        vertical-align: top;
+      }
+
+      td {
+        border-top: 1px solid var(--border-soft);
+      }
+
+      .badge {
+        display: inline-block;
+        margin-left: 0.5rem;
+        padding: 0 0.375rem;
+        border-radius: 0.25rem;
+        background: var(--badge-bg);
+        color: var(--badge-text);
+        font-size: 0.75rem;
+      }
+
+      .none {
+        color: var(--muted);
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem;
+        background: rgb(0 0 0 / 0.5);
+      }
+
+      .modal {
+        display: flex;
+        flex-direction: column;
+        width: 96vw;
+        max-width: 1400px;
+        height: 90vh;
+        background: var(--panel);
+        border-radius: 0.5rem;
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.25);
+      }
+
+      .modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .modal-head h2 {
+        margin: 0;
+        font-size: 1.125rem;
+      }
+
+      .modal textarea {
+        flex: 1;
+        min-height: 0;
+        width: 100%;
+        padding: 1rem;
+        border: 0;
+        border-radius: 0 0 0.5rem 0.5rem;
+        background: var(--code-bg);
+        color: var(--text);
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 0.875rem;
+        line-height: 1.5rem;
+        resize: none;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+
+      [hidden] {
+        display: none !important;
       }
     </style>
   </head>
-  <body class="bg-slate-100 text-slate-900 min-h-screen">
-    <div id="root"></div>
+  <body>
+    <main>
+      <h1>Request History</h1>
+      <div class="toolbar">
+        <p>History grouped by endpoint. Expand endpoint to inspect individual requests.</p>
+        <div class="actions">
+          <button type="button" class="btn-neutral" id="refresh">Refresh</button>
+          <button type="button" class="btn-danger" id="clear">Clear history</button>
+        </div>
+      </div>
+      <div id="status" class="message">Loading...</div>
+      <div id="endpoints" class="endpoints"></div>
+    </main>
 
-    <script type="text/babel">
-      const { useEffect, useMemo, useState } = React;
+    <div id="modal" class="modal-backdrop" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-head">
+          <h2 id="modal-title"></h2>
+          <div class="actions">
+            <button type="button" class="btn-apply" id="modal-apply">Apply \n</button>
+            <button type="button" class="btn-neutral" id="modal-close">Close</button>
+          </div>
+        </div>
+        <textarea id="modal-content" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <script>
+      "use strict";
+
+      const statusElement = document.getElementById("status");
+      const endpointsElement = document.getElementById("endpoints");
+      const clearButton = document.getElementById("clear");
+      const refreshButton = document.getElementById("refresh");
+      const modal = document.getElementById("modal");
+      const modalTitle = document.getElementById("modal-title");
+      const modalContent = document.getElementById("modal-content");
+      const modalApply = document.getElementById("modal-apply");
+
+      // Endpoints the user expanded stay expanded after refresh
+      const expandedEndpoints = new Set();
+      let originalModalContent = "";
+      let isApplied = false;
+
+      function element(tag, className, text) {
+        const result = document.createElement(tag);
+        if (className) {
+          result.className = className;
+        }
+        if (text !== undefined) {
+          result.textContent = text;
+        }
+        return result;
+      }
 
       function formatLocalTime(value) {
-        if (!value) return "-";
+        if (!value) {
+          return "-";
+        }
         const date = new Date(value);
-        if (Number.isNaN(date.getTime())) return value;
-        return date.toLocaleString();
+        return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
       }
 
-      function JsonModal({ title, payload, onClose }) {
-        const [content, setContent] = useState("");
-        const [originalContent, setOriginalContent] = useState("");
-        const [isApplied, setIsApplied] = useState(false);
+      function showStatus(text, isError) {
+        statusElement.textContent = text;
+        statusElement.classList.toggle("error", !!isError);
+        statusElement.hidden = false;
+      }
 
-        useEffect(() => {
-          if (!payload) {
-            setContent("");
-            setOriginalContent("");
-            setIsApplied(false);
-            return;
+      function openModal(title, payload) {
+        const content = JSON.stringify(payload, null, 2);
+        const binary = payload && payload.bodyEncoding === "base64" ? " (binary body, base64)" : "";
+        modalTitle.textContent = title + binary;
+        modalContent.value = content;
+        originalModalContent = content;
+        setApplied(false);
+        modal.hidden = false;
+        modalContent.focus();
+      }
+
+      function closeModal() {
+        modal.hidden = true;
+      }
+
+      function setApplied(applied) {
+        isApplied = applied;
+        modalApply.textContent = applied ? "Revert" : "Apply \\n";
+        modalApply.className = applied ? "btn-revert" : "btn-apply";
+      }
+
+      modalApply.addEventListener("click", () => {
+        if (isApplied) {
+          modalContent.value = originalModalContent;
+          setApplied(false);
+        } else {
+          // Shows escaped new lines of JSON strings as real line breaks
+          modalContent.value = modalContent.value.replace(/\\n/g, "\n");
+          setApplied(true);
+        }
+      });
+      document.getElementById("modal-close").addEventListener("click", closeModal);
+      modal.addEventListener("click", (event) => {
+        if (event.target === modal) {
+          closeModal();
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !modal.hidden) {
+          closeModal();
+        }
+      });
+
+      function payloadButton(label, className, title, payload) {
+        if (!payload) {
+          return element("span", "none", "-");
+        }
+        const button = element("button", className, label);
+        button.type = "button";
+        button.addEventListener("click", () => openModal(title, payload));
+        const cell = element("span");
+        cell.append(button);
+        if (payload.bodyEncoding === "base64") {
+          cell.append(element("span", "badge", "binary"));
+        }
+        return cell;
+      }
+
+      function renderEndpoint(endpoint, records) {
+        const panel = element("div", "endpoint");
+        const toggle = element("button", "endpoint-toggle");
+        toggle.type = "button";
+        toggle.append(element("span", "endpoint-name", endpoint), element("span", "endpoint-count", `${records.length} request(s)`));
+        panel.append(toggle);
+
+        const tableWrap = element("div", "table-wrap");
+        const table = element("table");
+        const headRow = element("tr");
+        for (const title of ["Time", "Type", "Request", "Response"]) {
+          headRow.append(element("th", "", title));
+        }
+        const head = element("thead");
+        head.append(headRow);
+        table.append(head);
+        const body = element("tbody");
+        const sorted = [...records].sort((a, b) => new Date(b?.request?.time || "").getTime() - new Date(a?.request?.time || "").getTime());
+        for (const record of sorted) {
+          const row = element("tr");
+          const requestCell = element("td");
+          requestCell.append(payloadButton("Show JSON", "btn-request", "Request JSON", record.request));
+          const responseCell = element("td");
+          responseCell.append(payloadButton("Show JSON", "btn-response", "Response JSON", record.response));
+          row.append(element("td", "", formatLocalTime(record?.request?.time)), element("td", "", record.type || "-"), requestCell, responseCell);
+          body.append(row);
+        }
+        table.append(body);
+        tableWrap.append(table);
+        tableWrap.hidden = !expandedEndpoints.has(endpoint);
+        panel.append(tableWrap);
+
+        toggle.setAttribute("aria-expanded", String(!tableWrap.hidden));
+        toggle.addEventListener("click", () => {
+          tableWrap.hidden = !tableWrap.hidden;
+          toggle.setAttribute("aria-expanded", String(!tableWrap.hidden));
+          if (tableWrap.hidden) {
+            expandedEndpoints.delete(endpoint);
+          } else {
+            expandedEndpoints.add(endpoint);
           }
-
-          const formattedPayload = JSON.stringify(payload, null, 2);
-          setContent(formattedPayload);
-          setOriginalContent(formattedPayload);
-          setIsApplied(false);
-        }, [payload]);
-
-        if (!payload) return null;
-        return (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 md:p-6 z-50">
-            <div className="bg-white rounded-lg shadow-xl w-[96vw] max-w-[1400px] h-[90vh] flex flex-col">
-              <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-                <h2 className="font-semibold text-lg">{title}</h2>
-                <div className="flex items-center gap-2">
-                  <button
-                    className={`px-3 py-1 rounded text-white ${
-                      isApplied
-                        ? "bg-amber-600 hover:bg-amber-700"
-                        : "bg-indigo-600 hover:bg-indigo-700"
-                    }`}
-                    onClick={() => {
-                      if (isApplied) {
-                        setContent(originalContent);
-                        setIsApplied(false);
-                        return;
-                      }
-
-                      setContent((prev) => prev.replace(/\\n/g, "\n"));
-                      setIsApplied(true);
-                    }}
-                  >
-                    {isApplied ? "Revert" : "Apply \\n"}
-                  </button>
-                  <button
-                    className="px-3 py-1 rounded bg-slate-200 hover:bg-slate-300"
-                    onClick={onClose}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-              <textarea
-                className="p-4 overflow-y-auto text-sm leading-6 bg-slate-50 rounded-b-lg w-full flex-1 min-h-0 resize-none font-mono"
-                value={content}
-                onChange={(event) => setContent(event.target.value)}
-              />
-            </div>
-          </div>
-        );
+        });
+        return panel;
       }
 
-      function EndpointAccordion({ endpoint, records }) {
-        const [isOpen, setIsOpen] = useState(false);
-        const [modalData, setModalData] = useState(null);
-        const sortedRecords = useMemo(() => {
-          return [...records].sort((a, b) => {
-            const aTime = new Date(a?.request?.time || "").getTime();
-            const bTime = new Date(b?.request?.time || "").getTime();
-            return bTime - aTime;
-          });
-        }, [records]);
-
-        return (
-          <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
-            <button
-              className="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-slate-50"
-              onClick={() => setIsOpen((prev) => !prev)}
-            >
-              <span className="font-medium">{endpoint}</span>
-              <span className="text-sm text-slate-500">{`${records.length} request(s)`}</span>
-            </button>
-
-            {isOpen && (
-              <div className="overflow-x-auto border-t border-slate-200">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-100 text-slate-700">
-                    <tr>
-                      <th className="px-4 py-2 text-left">Time</th>
-                      <th className="px-4 py-2 text-left">Type</th>
-                      <th className="px-4 py-2 text-left">Request</th>
-                      <th className="px-4 py-2 text-left">Response</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedRecords.map((item, index) => (
-                      <tr
-                        key={`${endpoint}-${index}`}
-                        className="border-t border-slate-100"
-                      >
-                        <td className="px-4 py-2 align-top">
-                          {formatLocalTime(item.request?.time || "")}
-                        </td>
-                        <td className="px-4 py-2 align-top">
-                          {item.type || "-"}
-                        </td>
-                        <td className="px-4 py-2 align-top">
-                          <button
-                            className="px-3 py-1 rounded bg-sky-600 hover:bg-sky-700 text-white"
-                            onClick={() =>
-                              setModalData({
-                                title: "Request JSON",
-                                payload: item.request,
-                              })
-                            }
-                          >
-                            Show JSON
-                          </button>
-                        </td>
-                        <td className="px-4 py-2 align-top">
-                          <button
-                            className="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white"
-                            onClick={() =>
-                              setModalData({
-                                title: "Response JSON",
-                                payload: item.response,
-                              })
-                            }
-                          >
-                            Show JSON
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            <JsonModal
-              title={modalData?.title || ""}
-              payload={modalData?.payload || null}
-              onClose={() => setModalData(null)}
-            />
-          </div>
-        );
+      function render(history) {
+        endpointsElement.replaceChildren();
+        const endpoints = Object.keys(history).sort();
+        if (!endpoints.length) {
+          showStatus("No requests in memory.");
+          return;
+        }
+        statusElement.hidden = true;
+        for (const endpoint of endpoints) {
+          endpointsElement.append(renderEndpoint(endpoint, history[endpoint] || []));
+        }
       }
 
-      function App() {
-        const [history, setHistory] = useState({});
-        const [status, setStatus] = useState("loading");
-        const [isClearing, setIsClearing] = useState(false);
-
-        const loadHistory = () => {
-          setStatus("loading");
-          return fetch("/get-all-requests/")
-            .then((response) => response.json())
-            .then((data) => {
-              setHistory(data || {});
-              setStatus("ready");
-            })
-            .catch(() => setStatus("error"));
-        };
-
-        const clearHistory = () => {
-          setIsClearing(true);
-          fetch("/clear-history/")
-            .then(() => loadHistory())
-            .finally(() => setIsClearing(false));
-        };
-
-        useEffect(() => {
-          loadHistory();
-        }, []);
-
-        const endpoints = useMemo(() => Object.keys(history).sort(), [history]);
-
-        return (
-          <main className="max-w-6xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-2">Request History</h1>
-            <div className="mb-6 flex items-center justify-between gap-4">
-              <p className="text-slate-600">
-                History grouped by endpoint. Expand endpoint to inspect
-                individual requests.
-              </p>
-              <button
-                className="px-3 py-2 rounded bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 text-white"
-                onClick={clearHistory}
-                disabled={isClearing}
-              >
-                {isClearing ? "Clearing..." : "Clear history"}
-              </button>
-            </div>
-
-            {status === "loading" && (
-              <div className="text-slate-600">Loading...</div>
-            )}
-            {status === "error" && (
-              <div className="text-red-700 bg-red-50 border border-red-200 rounded p-3">
-                Unable to load history data.
-              </div>
-            )}
-            {status === "ready" && endpoints.length === 0 && (
-              <div className="text-slate-600 bg-white border border-slate-200 rounded p-4">
-                No requests in memory.
-              </div>
-            )}
-            {status === "ready" && endpoints.length > 0 && (
-              <div className="space-y-3">
-                {endpoints.map((endpoint) => (
-                  <EndpointAccordion
-                    key={endpoint}
-                    endpoint={endpoint}
-                    records={history[endpoint] || []}
-                  />
-                ))}
-              </div>
-            )}
-          </main>
-        );
+      async function loadHistory() {
+        showStatus("Loading...");
+        try {
+          const response = await fetch("/get-all-requests/");
+          render((await response.json()) || {});
+        } catch (error) {
+          console.error(error);
+          endpointsElement.replaceChildren();
+          showStatus("Unable to load history data.", true);
+        }
       }
 
-      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+      async function clearHistory() {
+        clearButton.disabled = true;
+        clearButton.textContent = "Clearing...";
+        try {
+          await fetch("/clear-history/");
+          expandedEndpoints.clear();
+          await loadHistory();
+        } finally {
+          clearButton.disabled = false;
+          clearButton.textContent = "Clear history";
+        }
+      }
+
+      clearButton.addEventListener("click", clearHistory);
+      refreshButton.addEventListener("click", loadHistory);
+      loadHistory();
     </script>
   </body>
 </html>
