@@ -92,7 +92,7 @@ describe("History API", () => {
     expect(result.body).toContain("<title>Request History</title>");
   });
 
-  // Q4: /get-last-request/ addresses the root endpoint "/" (the old "return everything" branch was unreachable)
+  // /get-last-request/ addresses the root endpoint "/" (the old "return everything" branch was unreachable)
   it("returns the last request of the root endpoint for an empty endpoint", async () => {
     await server.http("/text");
     expect((await server.api("/get-last-request/")).body).toBe("");

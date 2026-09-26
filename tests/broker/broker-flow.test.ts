@@ -42,7 +42,7 @@ function createConfig(): any {
         kafkaOff: { enabled: false, host: "off-host", requests: { in_off: "x" }, responses: { x: { content: "text:x", targetTopic: "t" } } },
       },
       amqp: {
-        // No queueSettings on purpose (Q3)
+        // No queueSettings on purpose
         amqp1: {
           host: "amqp-host",
           requests: { in_queue: { sendResponse: true, response: "toQueue" } },
@@ -100,7 +100,7 @@ describe("broker listeners", () => {
     expect(entry.response).toStrictEqual({ time: expect.any(String), headers: { "X-Reply": "yes" }, body: "reply from file\n" });
   });
 
-  // Q7: the short form of a broker rule used to crash
+  // Regression: the short form of a broker rule used to crash
   it("accepts the short rule form", async () => {
     await kafka().emit("in_short", "hello");
     expect(kafka().published.map((message) => message.topic)).toStrictEqual(["out_file"]);
@@ -126,7 +126,7 @@ describe("broker listeners", () => {
     expect((await mock.apiJson("/get-last-request/in_queue")).type).toBe("amqp");
   });
 
-  // Q2: a failing reply used to be an unhandled rejection that crashed the process
+  // Regression: a failing reply used to be an unhandled rejection that crashed the process
   it.each([
     ["in_failing", "processor failed"],
     ["in_unknownTemplate", `Unknown response "nope" for listener kafka1`],
@@ -162,7 +162,7 @@ describe("broker listeners", () => {
 });
 
 describe("HTTP to broker", () => {
-  // Q8: the broker reply replaces the HTTP reply in the history entry
+  // The broker reply replaces the HTTP reply in the history entry
   it("answers the HTTP request immediately and publishes after the delay", async () => {
     const result = await mock.http("/toKafka");
     expect(result.body).toBe("Response will be sent by kafka1:fromFile");

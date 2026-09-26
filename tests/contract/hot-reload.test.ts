@@ -26,7 +26,7 @@ describe("hot reload", () => {
     expect((await server.http("/reloadable")).body).toBe("second version");
   });
 
-  // Q5: HTTP templates were taken from the startup config only
+  // Regression: HTTP templates were taken from the startup config only
   it("re-reads HTTP templates on every request", async () => {
     expect((await server.http("/textTemplate")).body).toBe("template text");
     const config = createHttpConfig();

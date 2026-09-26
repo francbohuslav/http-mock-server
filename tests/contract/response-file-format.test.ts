@@ -63,7 +63,7 @@ describe("response file format", () => {
     expect(result.body).toBe("only body");
   });
 
-  // Q6: body lines used to be trimmed which destroyed indentation
+  // Regression: body lines used to be trimmed which destroyed indentation
   it("preserves indentation of the body", async () => {
     const result = await server.http("/indentedJson");
     expect(result.body).toBe(`{\n  "nested": {\n    "value": 1\n  }\n}\n`);
