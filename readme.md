@@ -40,16 +40,10 @@ After build:
 npm start
 ```
 
-Development mode (restart on changes in `dist`):
+Development mode (TypeScript in watch mode, server restarts on every change):
 
 ```bash
-npm run devel
-```
-
-TypeScript watch mode:
-
-```bash
-npm run watch
+npm run dev
 ```
 
 ## How It Works
@@ -247,8 +241,7 @@ Schema violations of `config.jsonc` are printed on startup as `Config warning: â
 
 - `npm run build` - compile TypeScript to `dist`
 - `npm start` - run compiled app
-- `npm run devel` - run app with nodemon on `dist`
-- `npm run watch` - TypeScript watch mode
+- `npm run dev` - TypeScript watch mode + server restarted by `node --watch`
 - `npm test` - build and run Jest tests
 - `npm run lint` - Biome linter, `npm run lint-fix` - apply safe fixes
 - `npm run format` - format code with Biome, `npm run check` - lint + formatting check

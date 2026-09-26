@@ -5,9 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "node ./dist/index.js",
-    "devel": "nodemon ./dist/index.js",
-    "build": "tsc --project tsconfig.json --extendedDiagnostics",
-    "watch": "tsc --watch --project tsconfig.json",
+    "dev": "node scripts/dev.js",
+    "build": "tsc --project tsconfig.json",
     "test": "jest -c jest.config.js",
     "test-watch": "jest -c jest.config.js --watch",
     "lint": "biome lint",
@@ -32,7 +31,6 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^22.20.4",
     "jest": "^30.5.2",
-    "nodemon": "^3.1.14",
     "ts-jest": "^29.4.14",
     "typescript": "~6.0.3"
   },

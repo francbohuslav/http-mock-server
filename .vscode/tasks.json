@@ -9,9 +9,9 @@
     },
     {
       "type": "npm",
-      "script": "devel",
+      "script": "dev",
       "problemMatcher": [],
-      "label": "Devel"
+      "label": "Dev"
     },
     {
       "type": "npm",
