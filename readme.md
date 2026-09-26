@@ -135,6 +135,11 @@ AMQP endpoint example:
 }
 ```
 
+AMQP listeners reconnect automatically: at startup they keep retrying until RabbitMQ is reachable (HTTP and the
+History API already run meanwhile), after a connection loss they reconnect and consume again. The delay grows from
+0.5 s up to 30 s. Passwords in `host` are masked in logs. Kafka listeners use the retry logic of kafkajs; when the
+first connection fails, the server exits with code `1`.
+
 ## Response Files
 
 `file:...` points to a file in the `responses` directory.

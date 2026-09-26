@@ -3,6 +3,7 @@ import type { RawBrokerListenerConfig } from "../../config/raw-config";
 import type { HistoryStore } from "../../history/history-store";
 import { type InboundMessage, now, type OutboundMessage } from "../../messages";
 import { type Logger, logMessage } from "../../shared/logger";
+import { maskCredentials } from "../../shared/mask-credentials";
 import type { BrokerClient, BrokerMessage, BrokerType } from "./broker-client";
 import type { BrokerReplyDispatcher } from "./broker-reply-dispatcher";
 
@@ -22,7 +23,7 @@ export class BrokerListener {
   ) {}
 
   public async start(): Promise<void> {
-    this.logger.log(`${this.type === "kafka" ? "Kafka" : "AMQP"} listener ${this.name} on ${this.config.host}...`);
+    this.logger.log(`${this.type === "kafka" ? "Kafka" : "AMQP"} listener ${this.name} on ${maskCredentials(this.config.host)}...`);
     await this.client.connect();
     await this.client.subscribe(Object.keys(this.config.requests || {}), (topic, message) => this.handleMessage(topic, message));
   }

@@ -33,8 +33,8 @@ export interface StartedPorts {
   httpPort?: number;
 }
 
-export const defaultBrokerClientFactory: BrokerClientFactory = (type, config) =>
-  type === "kafka" ? new KafkaClient(config.host) : new AmqpClient(config.host, config.queueSettings);
+export const defaultBrokerClientFactory: BrokerClientFactory = (type, config, logger) =>
+  type === "kafka" ? new KafkaClient(config.host) : new AmqpClient(config.host, config.queueSettings, logger);
 
 /**
  * Composition root: wires all parts together and starts the API server and the listeners.
@@ -80,7 +80,7 @@ export class MockServerApp {
         if (brokerConfig.enabled === false) {
           continue;
         }
-        const client = brokerClientFactory(type, brokerConfig);
+        const client = brokerClientFactory(type, brokerConfig, this.logger);
         this.brokers.register(new BrokerListener(name, type, brokerConfig, client, this.history, dispatcher, this.logger));
       }
     }

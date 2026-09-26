@@ -1,4 +1,5 @@
 import type { RawBrokerListenerConfig } from "../../config/raw-config";
+import type { Logger } from "../../shared/logger";
 
 export type BrokerType = "kafka" | "amqp";
 
@@ -19,4 +20,4 @@ export interface BrokerClient {
   close(): Promise<void>;
 }
 
-export type BrokerClientFactory = (type: BrokerType, config: RawBrokerListenerConfig) => BrokerClient;
+export type BrokerClientFactory = (type: BrokerType, config: RawBrokerListenerConfig, logger: Logger) => BrokerClient;
