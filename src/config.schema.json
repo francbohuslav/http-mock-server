@@ -15,6 +15,12 @@
       "type": "integer",
       "description": "Port for HTTP API"
     },
+    "historyLimit": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 10,
+      "description": "Number of requests kept in history per endpoint, older ones are dropped"
+    },
     "listeners": {
       "type": "object",
       "additionalProperties": false,

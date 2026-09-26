@@ -4,6 +4,8 @@
  */
 export interface RawConfig {
   apiPort: number;
+  /** Entries kept per endpoint in history, default 10. */
+  historyLimit?: number;
   listeners: {
     http?: RawHttpListenerConfig;
     kafka?: Record<string, RawBrokerListenerConfig>;

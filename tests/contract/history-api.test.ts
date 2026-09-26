@@ -102,3 +102,26 @@ describe("History API", () => {
     expect(entry.response.body).toBe("unknown request");
   });
 });
+
+describe("history limit", () => {
+  async function sendAndList(target: MockServerProcess, count: number): Promise<string[]> {
+    for (let i = 1; i <= count; i++) {
+      await target.http("/text", { method: "POST", body: String(i) });
+    }
+    const history = await target.apiJson("/get-all-requests/");
+    return history["/text"].map((entry: { request: { body: string } }) => entry.request.body);
+  }
+
+  it("keeps the 10 newest requests per endpoint by default", async () => {
+    expect(await sendAndList(server, 11)).toStrictEqual(["2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]);
+  });
+
+  it("uses historyLimit from the config", async () => {
+    const limited = await MockServerProcess.start({ ...createHttpConfig(), historyLimit: 2 }, FIXTURE_DIR);
+    try {
+      expect(await sendAndList(limited, 3)).toStrictEqual(["2", "3"]);
+    } finally {
+      await limited.stop();
+    }
+  });
+});

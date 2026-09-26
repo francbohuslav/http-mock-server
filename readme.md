@@ -238,6 +238,15 @@ Notes:
 - HTTP requests are stored under their URL including the query string (for example `/health` or `/users?id=1`),
   so `/get-last-request/health` returns the last request of `/health`
 - Kafka/AMQP requests are stored under `/{topic}`, the reply is added when it is sent
+- Only the newest `historyLimit` requests are kept per endpoint (top-level config key, default `10`):
+
+```json
+{
+  "apiPort": 4445,
+  "historyLimit": 50,
+  "listeners": {}
+}
+```
 
 ## Hot reload
 

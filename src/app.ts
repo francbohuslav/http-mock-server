@@ -4,7 +4,7 @@ import path from "node:path";
 import { ConfigProvider } from "./config/config-provider";
 import type { RawBrokerListenerConfig } from "./config/raw-config";
 import { HistoryApi } from "./history/history-api";
-import { HistoryStore } from "./history/history-store";
+import { DEFAULT_HISTORY_LIMIT, HistoryStore } from "./history/history-store";
 import { AmqpClient } from "./listeners/broker/amqp-client";
 import type { BrokerClientFactory, BrokerType } from "./listeners/broker/broker-client";
 import { BrokerListener } from "./listeners/broker/broker-listener";
@@ -55,6 +55,7 @@ export class MockServerApp {
 
   public async start(): Promise<StartedPorts> {
     const config = this.configProvider.load();
+    this.history.setLimit(config.historyLimit ?? DEFAULT_HISTORY_LIMIT);
     for (const warning of this.configProvider.validate(config)) {
       this.logger.error(`Config warning: ${warning}`);
     }

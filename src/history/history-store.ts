@@ -9,17 +9,34 @@ export interface HistoryEntry {
   outbound: OutboundMessage | null;
 }
 
+export const DEFAULT_HISTORY_LIMIT = 10;
+
 /**
- * In-memory history of received messages grouped by endpoint.
+ * In-memory history of received messages grouped by endpoint. Each endpoint keeps at most `limit` newest entries.
  */
 export class HistoryStore {
   private entries = new Map<string, HistoryEntry[]>();
+
+  constructor(private limit = DEFAULT_HISTORY_LIMIT) {}
+
+  public setLimit(limit: number): void {
+    if (!Number.isInteger(limit) || limit < 1) {
+      throw new Error(`historyLimit must be a positive integer, got ${limit}`);
+    }
+    this.limit = limit;
+    for (const list of this.entries.values()) {
+      list.splice(0, Math.max(0, list.length - limit));
+    }
+  }
 
   public record(listenerType: ListenerType, endpoint: string, inbound: InboundMessage, outbound: OutboundMessage | null): HistoryEntry {
     const entry: HistoryEntry = { listenerType, endpoint, inbound, outbound };
     const list = this.entries.get(endpoint);
     if (list) {
       list.push(entry);
+      if (list.length > this.limit) {
+        list.shift();
+      }
     } else {
       this.entries.set(endpoint, [entry]);
     }
