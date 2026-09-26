@@ -55,7 +55,12 @@ src/
       broker-registry.ts        running broker listeners by unique name
       broker-reply-dispatcher.ts  delay → template → build → history → publish
   shared/
+    body.ts                     Body = string | Buffer, UTF-8 detection, base64 for the History API
+    close-server.ts             closes an HTTP server including keep-alive connections
+    mask-credentials.ts         hides passwords in broker URLs in logs
     delay.ts, logger.ts
+scripts/
+  dev.js                        npm run dev: tsc --watch + node --watch
 ```
 
 ## Data flow
