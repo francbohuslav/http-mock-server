@@ -44,7 +44,7 @@ export class FakeBrokerClient implements BrokerClient {
   /**
    * Delivers a message like the broker would and resolves when the listener has processed it.
    */
-  public async emit(topic: string, body: string, headers: Record<string, unknown> = {}): Promise<void> {
+  public async emit(topic: string, body: string | Buffer, headers: Record<string, unknown> = {}): Promise<void> {
     if (!this.handler) {
       throw new Error(`${this.type} client is not subscribed`);
     }

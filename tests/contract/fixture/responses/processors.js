@@ -38,4 +38,10 @@ module.exports = {
     responseContent.body = "mutated";
     return { body: "ignored" };
   },
+
+  binaryBody(requestContent, responseContent) {
+    responseContent.headers["Content-Type"] = "application/octet-stream";
+    responseContent.headers["X-Request-Binary"] = String(Buffer.isBuffer(requestContent.body));
+    responseContent.body = Buffer.from([0x00, 0xff, 0xfe, 0x0d, 0x0a, 0x80]);
+  },
 };

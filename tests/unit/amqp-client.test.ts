@@ -60,10 +60,12 @@ describe("AmqpClient", () => {
     const onMessage = (channel.consume.mock.calls[0] as unknown[])[1] as (message: unknown) => void;
     onMessage({ properties: { headers: { a: "1" } }, content: Buffer.from("body") });
     onMessage({ properties: {}, content: Buffer.from("") });
+    onMessage({ properties: {}, content: Buffer.from([0xff, 0x00]) });
     onMessage(null);
     expect(handler.mock.calls).toStrictEqual([
       ["normal", { headers: { a: "1" }, body: "body" }],
       ["normal", { headers: {}, body: "" }],
+      ["normal", { headers: {}, body: Buffer.from([0xff, 0x00]) }],
     ]);
     await client.close();
   });
@@ -76,6 +78,9 @@ describe("AmqpClient", () => {
     const channel = connections[0].channel;
     expect(channel.assertQueue.mock.calls).toStrictEqual([["out", {}]]);
     expect(channel.sendToQueue).toHaveBeenCalledWith("out", Buffer.from("x"), { headers: { a: "1" } });
+    const binary = Buffer.from([0xff, 0x00]);
+    await client.publish("out", { headers: {}, body: binary });
+    expect(channel.sendToQueue).toHaveBeenLastCalledWith("out", binary, { headers: {} });
     await client.close();
   });
 

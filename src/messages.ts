@@ -1,3 +1,5 @@
+import type { Body } from "./shared/body";
+
 export type ListenerType = "http" | "kafka" | "amqp";
 
 /**
@@ -9,7 +11,8 @@ export interface InboundMessage {
   /** HTTP URL including the query string, or the topic/queue name for brokers. */
   url: string;
   headers: Record<string, unknown>;
-  body: string;
+  /** A string for UTF-8 content, a Buffer for binary content. */
+  body: Body;
 }
 
 /**
@@ -19,7 +22,8 @@ export interface InboundMessage {
 export interface OutboundMessage {
   time: string;
   headers: Record<string, unknown>;
-  body: string;
+  /** A string or a Buffer (binary content). */
+  body: Body;
   /** HTTP only. */
   statusCode?: number;
   /** HTTP only. */

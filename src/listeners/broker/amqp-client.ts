@@ -1,4 +1,5 @@
 import { type Channel, type ChannelModel, connect, type Options } from "amqplib";
+import { bodyToBuffer, decodeBody } from "../../shared/body";
 import { errorMessage, type Logger } from "../../shared/logger";
 import { maskCredentials } from "../../shared/mask-credentials";
 import type { BrokerClient, BrokerMessage, BrokerMessageHandler } from "./broker-client";
@@ -44,7 +45,7 @@ export class AmqpClient implements BrokerClient {
 
   public async publish(queue: string, message: BrokerMessage): Promise<void> {
     await this.assertQueue(queue);
-    this.requireChannel().sendToQueue(queue, Buffer.from(message.body), { headers: message.headers });
+    this.requireChannel().sendToQueue(queue, bodyToBuffer(message.body), { headers: message.headers });
   }
 
   public async close(): Promise<void> {
@@ -137,7 +138,7 @@ export class AmqpClient implements BrokerClient {
         queue,
         (message) => {
           if (message) {
-            void handler(queue, { headers: message.properties.headers || {}, body: message.content.toString() });
+            void handler(queue, { headers: message.properties.headers || {}, body: decodeBody(message.content) });
           }
         },
         { noAck: true }

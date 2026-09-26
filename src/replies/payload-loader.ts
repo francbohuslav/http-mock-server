@@ -21,7 +21,7 @@ export class PayloadLoader {
     const filePath = join(this.responsesDir, source.fileName);
     let parsed: ParsedPayloadFile;
     try {
-      parsed = parsePayloadFile(readFileSync(filePath, "utf-8"), (warning) => this.logger.error(`${warning} (file ${filePath})`));
+      parsed = parsePayloadFile(readFileSync(filePath), (warning) => this.logger.error(`${warning} (file ${filePath})`));
     } catch (error) {
       throw new Error(`Response file ${filePath}: ${errorMessage(error)}`, { cause: error });
     }

@@ -1,15 +1,20 @@
 import { readFileSync } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import type { InboundMessage, OutboundMessage } from "../messages";
+import { withJsonBody } from "../shared/body";
 import type { HistoryEntry, HistoryStore } from "./history-store";
+
+type JsonMessage<T extends { body: unknown }> = Omit<T, "body"> & { body: string; bodyEncoding?: "base64" };
 
 /**
  * JSON shape of one history record. It is a public contract used by clients and request-history.html.
+ * Binary bodies are base64 encoded and marked with `bodyEncoding: "base64"`.
  */
 interface HistoryRecordJson {
   type: HistoryEntry["listenerType"];
   endpoint: string;
-  request: HistoryEntry["inbound"];
-  response: HistoryEntry["outbound"];
+  request: JsonMessage<InboundMessage>;
+  response: JsonMessage<OutboundMessage> | null;
 }
 
 const GET_ALL_PREFIX = "/get-all-requests/";
@@ -65,5 +70,10 @@ export class HistoryApi {
 }
 
 function toJson(entry: HistoryEntry): HistoryRecordJson {
-  return { type: entry.listenerType, endpoint: entry.endpoint, request: entry.inbound, response: entry.outbound };
+  return {
+    type: entry.listenerType,
+    endpoint: entry.endpoint,
+    request: withJsonBody(entry.inbound),
+    response: entry.outbound && withJsonBody(entry.outbound),
+  };
 }

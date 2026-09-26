@@ -13,13 +13,16 @@ export interface HttpResult {
   statusText: string;
   headers: http.IncomingHttpHeaders;
   body: string;
+  bodyBuffer: Buffer;
   elapsedMs: number;
 }
 
 export interface RequestOptions {
   method?: string;
   headers?: Record<string, string>;
-  body?: string;
+  body?: string | Buffer;
+  /** Body sent in separate writes with a pause between them, to test joining of chunks. */
+  chunks?: Buffer[];
 }
 
 /**
@@ -80,7 +83,7 @@ export class MockServerProcess {
     return this.config;
   }
 
-  public writeResponseFile(name: string, content: string): void {
+  public writeResponseFile(name: string, content: string | Buffer): void {
     fs.writeFileSync(path.join(this.rootDir, "responses", name), content);
   }
 
@@ -158,22 +161,35 @@ export function sendRequest(port: number, urlPath: string, options: RequestOptio
   const start = Date.now();
   return new Promise((resolve, reject) => {
     const request = http.request({ host: "127.0.0.1", port, path: urlPath, method: options.method || "GET", headers: options.headers }, (response) => {
-      let body = "";
-      response.setEncoding("utf-8");
-      response.on("data", (chunk) => (body += chunk));
-      response.on("end", () =>
+      const chunks: Buffer[] = [];
+      response.on("data", (chunk: Buffer) => chunks.push(chunk));
+      response.on("end", () => {
+        const bodyBuffer = Buffer.concat(chunks);
         resolve({
           status: response.statusCode || 0,
           statusText: response.statusMessage || "",
           headers: response.headers,
-          body,
+          body: bodyBuffer.toString("utf-8"),
+          bodyBuffer,
           elapsedMs: Date.now() - start,
-        })
-      );
+        });
+      });
     });
     request.on("error", reject);
-    request.end(options.body);
+    if (options.chunks) {
+      writeChunks(request, options.chunks).catch(reject);
+    } else {
+      request.end(options.body);
+    }
   });
+}
+
+async function writeChunks(request: http.ClientRequest, chunks: Buffer[]): Promise<void> {
+  for (const chunk of chunks) {
+    request.write(chunk);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  request.end();
 }
 
 function findFreePort(): Promise<number> {

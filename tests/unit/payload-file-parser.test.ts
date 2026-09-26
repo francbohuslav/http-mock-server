@@ -69,3 +69,24 @@ describe("parsePayloadFile", () => {
     expect(() => parse("X-A: 1\nbody")).toThrow("Response file must contain headers, an empty line and a body");
   });
 });
+
+describe("parsePayloadFile with binary content", () => {
+  const binary = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0xff, 0x0d, 0x0a]);
+
+  it("returns a binary body byte for byte", () => {
+    const result = parsePayloadFile(Buffer.concat([Buffer.from("Content-Type: image/png\r\n\r\n"), binary]), () => undefined);
+    expect(result.headers).toStrictEqual({ "Content-Type": "image/png" });
+    expect(Buffer.isBuffer(result.body)).toBe(true);
+    expect((result.body as Buffer).equals(binary)).toBe(true);
+  });
+
+  it("returns a binary body after a status line and a BOM", () => {
+    const result = parsePayloadFile(Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from("201 Created\n\n"), binary]), () => undefined);
+    expect(result.statusCode).toBe(201);
+    expect((result.body as Buffer).equals(binary)).toBe(true);
+  });
+
+  it("decodes a UTF-8 body from bytes", () => {
+    expect(parsePayloadFile(Buffer.from("X-A: 1\r\n\r\nžluťoučký\r\nkůň"), () => undefined).body).toBe("žluťoučký\nkůň");
+  });
+});

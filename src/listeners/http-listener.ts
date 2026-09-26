@@ -6,6 +6,7 @@ import type { RawHttpListenerConfig } from "../config/raw-config";
 import type { HistoryEntry, HistoryStore } from "../history/history-store";
 import { type InboundMessage, now, type OutboundMessage } from "../messages";
 import type { ReplyBuilder } from "../replies/reply-builder";
+import { type Body, decodeBody } from "../shared/body";
 import { closeServer } from "../shared/close-server";
 import { delay } from "../shared/delay";
 import { errorMessage, type Logger, logMessage } from "../shared/logger";
@@ -47,10 +48,11 @@ export class HttpListener {
       response.end();
       return;
     }
-    let body = "";
-    request.on("data", (chunk) => (body += chunk));
+    // Chunks are joined as bytes: decoding each chunk alone would break multi-byte characters and binary data
+    const chunks: Buffer[] = [];
+    request.on("data", (chunk: Buffer) => chunks.push(chunk));
     request.on("end", () => {
-      this.respond(request, body, response).catch((error) => {
+      this.respond(request, decodeBody(Buffer.concat(chunks)), response).catch((error) => {
         this.logger.error(`Error while answering request ${request.url}`, error);
         if (!response.headersSent) {
           response.statusCode = 500;
@@ -60,7 +62,7 @@ export class HttpListener {
     });
   }
 
-  private async respond(request: IncomingMessage, body: string, response: ServerResponse): Promise<void> {
+  private async respond(request: IncomingMessage, body: Body, response: ServerResponse): Promise<void> {
     const url = request.url || "";
     const inbound: InboundMessage = { time: now(), url, headers: request.headers, body };
     logMessage(this.logger, `Received ${request.method} request for ${url}`, inbound.headers, body);

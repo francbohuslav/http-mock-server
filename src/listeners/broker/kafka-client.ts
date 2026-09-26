@@ -1,4 +1,5 @@
 import { type Consumer, type IHeaders, Kafka, logLevel, Partitioners, PartitionAssigners, type Producer } from "kafkajs";
+import { decodeBody } from "../../shared/body";
 import type { BrokerClient, BrokerMessage, BrokerMessageHandler } from "./broker-client";
 
 export class KafkaClient implements BrokerClient {
@@ -25,7 +26,7 @@ export class KafkaClient implements BrokerClient {
     }
     await consumer.subscribe({ topics, fromBeginning: false });
     await consumer.run({
-      eachMessage: ({ topic, message }) => handler(topic, { headers: fromKafkaHeaders(message.headers), body: message.value?.toString() ?? "" }),
+      eachMessage: ({ topic, message }) => handler(topic, { headers: fromKafkaHeaders(message.headers), body: message.value ? decodeBody(message.value) : "" }),
     });
   }
 

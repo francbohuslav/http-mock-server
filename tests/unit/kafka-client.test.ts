@@ -29,9 +29,11 @@ describe("KafkaClient", () => {
     const { eachMessage } = consumer.run.mock.calls[0][0];
     await eachMessage({ topic: "a", message: { headers: { h: Buffer.from("v") }, value: Buffer.from("body") } });
     await eachMessage({ topic: "a", message: { headers: undefined, value: null } });
+    await eachMessage({ topic: "a", message: { headers: {}, value: Buffer.from([0xff, 0x00]) } });
     expect(handler.mock.calls).toStrictEqual([
       ["a", { headers: { h: "v" }, body: "body" }],
       ["a", { headers: {}, body: "" }],
+      ["a", { headers: {}, body: Buffer.from([0xff, 0x00]) }],
     ]);
   });
 

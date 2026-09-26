@@ -45,6 +45,8 @@ export function createHttpConfig(): MockServerConfig {
           "^/invalidProcessorHeader$": "invalidHeader",
           "^/processorAndDelay$": { delay: 150, response: "withAsyncProcessor" },
           "^/external$": "kafka1:someResponse",
+          "^/binaryFile$": "file:binary.bin",
+          "^/binaryProcessor$": "binaryProcessor",
           "": "text:unknown request",
         },
         responses: {
@@ -58,6 +60,7 @@ export function createHttpConfig(): MockServerConfig {
           missingProcessor: { content: "file:json.txt", responseProcessor: "doesNotExist" },
           returnsValue: { content: "text:original", responseProcessor: "returnsValue" },
           invalidHeader: { content: "text:x", responseProcessor: "invalidHeader" },
+          binaryProcessor: { content: "text:", responseProcessor: "binaryBody" },
         },
       },
     },

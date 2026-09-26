@@ -1,3 +1,5 @@
+import { type Body, describeBody } from "./body";
+
 export interface Logger {
   log(...args: unknown[]): void;
   error(...args: unknown[]): void;
@@ -8,7 +10,7 @@ export const SEPARATOR = "------------------------------------------------------
 /**
  * Prints a message in the same layout for all listeners: separator, title, headers, empty line, body.
  */
-export function logMessage(logger: Logger, title: string, headers: Record<string, unknown>, body: string): void {
+export function logMessage(logger: Logger, title: string, headers: Record<string, unknown>, body: Body): void {
   logger.log(`${SEPARATOR} ${new Date().toLocaleString()}`);
   logger.log(title);
   const names = Object.keys(headers);
@@ -19,7 +21,7 @@ export function logMessage(logger: Logger, title: string, headers: Record<string
     }
   }
   logger.log("");
-  logger.log(body || "{no body}");
+  logger.log(describeBody(body));
   logger.log("");
 }
 

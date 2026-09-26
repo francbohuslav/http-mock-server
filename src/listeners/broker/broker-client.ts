@@ -1,11 +1,12 @@
 import type { RawBrokerListenerConfig } from "../../config/raw-config";
+import type { Body } from "../../shared/body";
 import type { Logger } from "../../shared/logger";
 
 export type BrokerType = "kafka" | "amqp";
 
 export interface BrokerMessage {
   headers: Record<string, unknown>;
-  body: string;
+  body: Body;
 }
 
 export type BrokerMessageHandler = (topic: string, message: BrokerMessage) => Promise<void>;

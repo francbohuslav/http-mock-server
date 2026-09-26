@@ -159,6 +159,8 @@ X-Custom: value
 - Optional status line can be the first header row (must not contain `:`)
 - Status line is evaluated only on the first header row
 - Response files are read on every request, so they can be edited without restart
+- The body may be binary (e.g. an image after `Content-Type: image/png` and the empty line); when it is not valid UTF-8,
+  it is sent byte for byte
 
 Supported status line formats:
 
@@ -190,6 +192,9 @@ function processor(requestContent, responseContent) {
 
 A processor can be `async` (return a `Promise`). The mock waits for it before sending the response, without blocking
 other requests, so it can e.g. delay the response. The return value is ignored, modify `responseContent` instead.
+
+`body` of both arguments is a string for UTF-8 content and a `Buffer` for binary content (request bodies, binary
+response files, Kafka/AMQP messages). A processor may also set `responseContent.body` to a `Buffer`.
 If the processor throws or rejects, HTTP listener answers with status `500`.
 
 Order against `delay` from request definition:
@@ -238,6 +243,7 @@ Notes:
 - HTTP requests are stored under their URL including the query string (for example `/health` or `/users?id=1`),
   so `/get-last-request/health` returns the last request of `/health`
 - Kafka/AMQP requests are stored under `/{topic}`, the reply is added when it is sent
+- Binary bodies are stored as base64 with `"bodyEncoding": "base64"` next to `body`
 - Only the newest `historyLimit` requests are kept per endpoint (top-level config key, default `10`):
 
 ```json

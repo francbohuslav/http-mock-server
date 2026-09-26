@@ -33,12 +33,14 @@ function createConfig(): any {
             in_disabledTarget: { sendResponse: true, response: "kafkaOff:x" },
             in_inline: { sendResponse: true, response: "text:x" },
             in_noTarget: { sendResponse: true, response: "noTarget" },
+            in_binary: { sendResponse: true, response: "binaryFile" },
           },
           responses: {
             fromFile: { content: "file:brokerReply.txt", targetTopic: "out_file" },
             echo: { content: "text:", responseProcessor: "echo", targetTopic: "out_echo" },
             failing: { content: "text:x", responseProcessor: "failing", targetTopic: "out_failing" },
             noTarget: { content: "text:x" },
+            binaryFile: { content: "file:binary.bin", targetTopic: "out_binary" },
           },
         },
         kafkaOff: { enabled: false, host: "off-host", requests: { in_off: "x" }, responses: { x: { content: "text:x", targetTopic: "t" } } },
@@ -120,6 +122,18 @@ describe("broker listeners", () => {
     expect(kafka().published).toStrictEqual([]);
     expect(amqp().published).toStrictEqual([{ topic: "out_queue", headers: {}, body: "queued" }]);
     expect((await mock.apiJson("/get-last-request/in_cross")).type).toBe("kafka");
+  });
+
+  it("records a binary message as base64 and publishes a binary file unchanged", async () => {
+    const binary = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x00, 0xff]);
+    fs.writeFileSync(path.join(mock.rootDir, "responses", "binary.bin"), Buffer.concat([Buffer.from("X-Type: png\n\n"), binary]));
+    await kafka().emit("in_binary", binary);
+    expect(kafka().published).toHaveLength(1);
+    expect(kafka().published[0].headers).toStrictEqual({ "X-Type": "png" });
+    expect(kafka().published[0].body).toStrictEqual(binary);
+    const entry = await mock.apiJson("/get-last-request/in_binary");
+    expect(entry.request).toMatchObject({ body: binary.toString("base64"), bodyEncoding: "base64" });
+    expect(entry.response).toMatchObject({ body: binary.toString("base64"), bodyEncoding: "base64" });
   });
 
   it("replies on AMQP", async () => {
