@@ -15,6 +15,7 @@ import { HttpListener } from "./listeners/http-listener";
 import { PayloadLoader } from "./replies/payload-loader";
 import { ProcessorRegistry } from "./replies/processor-registry";
 import { ReplyBuilder } from "./replies/reply-builder";
+import { closeServer } from "./shared/close-server";
 import type { Logger } from "./shared/logger";
 
 export interface AppOptions {
@@ -45,6 +46,7 @@ export class MockServerApp {
   private readonly configProvider: ConfigProvider;
   private apiServer?: http.Server;
   private httpListener?: HttpListener;
+  private stopping?: Promise<void>;
 
   constructor(private readonly options: AppOptions) {
     this.logger = options.logger || console;
@@ -86,10 +88,16 @@ export class MockServerApp {
     return result;
   }
 
-  public async stop(): Promise<void> {
-    await Promise.allSettled(this.brokers.all().map((listener) => listener.stop()));
-    await this.httpListener?.close();
-    await new Promise<void>((resolve) => (this.apiServer ? this.apiServer.close(() => resolve()) : resolve()));
+  /**
+   * Stops brokers and HTTP servers. Calling it again returns the same promise.
+   */
+  public stop(): Promise<void> {
+    this.stopping ??= (async () => {
+      await Promise.allSettled(this.brokers.all().map((listener) => listener.stop()));
+      await this.httpListener?.close();
+      await closeServer(this.apiServer);
+    })();
+    return this.stopping;
   }
 
   private startApi(port: number): Promise<number> {

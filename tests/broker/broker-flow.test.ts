@@ -1,6 +1,8 @@
 import fs from "node:fs";
+import http from "node:http";
 import path from "node:path";
 import { InProcessApp, waitFor } from "../harness/in-process-app";
+import { sendRequest } from "../harness/mock-server-process";
 
 const FIXTURE_DIR = path.join(__dirname, "fixture");
 
@@ -158,6 +160,20 @@ describe("broker listeners", () => {
     await mock.app.stop();
     expect(kafka().closed).toBe(true);
     expect(amqp().closed).toBe(true);
+  });
+
+  it("closes the ports on stop even with an open keep-alive connection", async () => {
+    const agent = new http.Agent({ keepAlive: true });
+    const ports = mock.ports as { apiPort: number; httpPort: number };
+    await new Promise((resolve) => http.get({ port: ports.httpPort, path: "/", agent }, (response) => response.resume().on("end", resolve)));
+    const start = Date.now();
+    await mock.app.stop();
+    await mock.app.stop();
+    expect(Date.now() - start).toBeLessThan(1000);
+    for (const port of [ports.apiPort, ports.httpPort]) {
+      await expect(sendRequest(port, "/")).rejects.toThrow();
+    }
+    agent.destroy();
   });
 });
 

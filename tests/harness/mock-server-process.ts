@@ -104,6 +104,18 @@ export class MockServerProcess {
     return result.body === "" ? undefined : JSON.parse(result.body);
   }
 
+  /**
+   * Sends a signal and resolves with the exit code once the process has exited.
+   */
+  public async signal(signal: NodeJS.Signals): Promise<number | null> {
+    if (!this.child || !this.isRunning) {
+      throw new Error("Mock server is not running");
+    }
+    const exited = new Promise<number | null>((resolve) => this.child?.once("exit", (code) => resolve(code)));
+    this.child.kill(signal);
+    return exited;
+  }
+
   public async stop(): Promise<void> {
     if (this.child && this.isRunning) {
       const exited = new Promise((resolve) => this.child?.once("exit", resolve));

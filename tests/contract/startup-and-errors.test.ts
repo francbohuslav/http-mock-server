@@ -31,6 +31,19 @@ describe("startup", () => {
   });
 });
 
+// Windows cannot deliver SIGTERM to a child process, kill() terminates it immediately
+const itWithSignals = process.platform === "win32" ? it.skip : it;
+
+describe("shutdown", () => {
+  itWithSignals("stops gracefully on SIGTERM", async () => {
+    server = await MockServerProcess.start(createHttpConfig(), FIXTURE_DIR);
+    const start = Date.now();
+    expect(await server.signal("SIGTERM")).toBe(0);
+    expect(Date.now() - start).toBeLessThan(5000);
+    expect(server.log).toContain("SIGTERM received, stopping...");
+  });
+});
+
 describe("errors", () => {
   it("answers 500 when no rule matches", async () => {
     const config = createHttpConfig();

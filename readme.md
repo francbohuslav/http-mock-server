@@ -46,6 +46,10 @@ Development mode (TypeScript in watch mode, server restarts on every change):
 npm run dev
 ```
 
+`SIGTERM` or `SIGINT` (Ctrl+C, `docker stop`) stops the server gracefully: broker connections and HTTP servers are
+closed, the process exits with code `0`. When it does not finish in 5 seconds or a second signal arrives, the process
+exits immediately.
+
 ## How It Works
 
 The app starts:

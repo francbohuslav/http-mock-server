@@ -6,6 +6,7 @@ import type { RawHttpListenerConfig } from "../config/raw-config";
 import type { HistoryEntry, HistoryStore } from "../history/history-store";
 import { type InboundMessage, now, type OutboundMessage } from "../messages";
 import type { ReplyBuilder } from "../replies/reply-builder";
+import { closeServer } from "../shared/close-server";
 import { delay } from "../shared/delay";
 import { errorMessage, type Logger, logMessage } from "../shared/logger";
 import type { BrokerReplyDispatcher } from "./broker/broker-reply-dispatcher";
@@ -36,7 +37,7 @@ export class HttpListener {
   }
 
   public close(): Promise<void> {
-    return new Promise((resolve) => (this.server ? this.server.close(() => resolve()) : resolve()));
+    return closeServer(this.server);
   }
 
   private handleRequest(request: IncomingMessage, response: ServerResponse): void {
